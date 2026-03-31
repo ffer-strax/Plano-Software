@@ -1,0 +1,99 @@
+import { getProjectDetail } from './actions';
+import { Navbar } from '@/components/layout/Navbar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FilesTab } from '@/components/projects/detail/FilesTab';
+import { RoadmapTab } from '@/components/projects/detail/RoadmapTab';
+import { QuoteTab } from '@/components/projects/detail/QuoteTab';
+import { createClient } from '@/lib/supabase/server';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, ChevronLeft, LayoutDashboard } from 'lucide-react';
+import Link from 'next/link';
+
+export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) return null;
+
+  const project = await getProjectDetail(params.id);
+
+  if (!project) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-2xl font-bold mb-4">Proyecto no encontrado</h1>
+        <Link href="/dashboard">
+          <Button variant="outline">Volver al Dashboard</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const portalLink = `/portal/${project.portal_token}`;
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <Navbar userEmail={user.email} />
+
+      {/* Header Detail */}
+      <div className="bg-white border-b sticky top-0 z-10">
+        <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <Link 
+              href="/dashboard" 
+              className="inline-flex items-center text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors mb-2"
+            >
+              <ChevronLeft className="mr-1 h-3 w-3" />
+              Regresar a Mis Proyectos
+            </Link>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">{project.name}</h1>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-slate-500">
+                {(project.clients as any)?.name || 'Sin Cliente'}
+              </span>
+              <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+              <span className="text-xs text-slate-400 capitalize">{project.status}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link href={portalLink} target="_blank">
+              <Button variant="outline" className="border-slate-200">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                Vista Cliente
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <Tabs defaultValue="files" className="space-y-8">
+          <div className="flex justify-center md:justify-start">
+            <TabsList className="bg-white border p-1 h-12">
+              <TabsTrigger value="files" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+                Archivos
+              </TabsTrigger>
+              <TabsTrigger value="roadmap" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+                Roadmap
+              </TabsTrigger>
+              <TabsTrigger value="quote" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+                Cotización
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="files" className="mt-0 focus-visible:outline-none">
+            <FilesTab projectId={project.id} files={project.files} />
+          </TabsContent>
+          <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
+            <RoadmapTab projectId={project.id} milestones={project.milestones} />
+          </TabsContent>
+          <TabsContent value="quote" className="mt-0 focus-visible:outline-none">
+            <QuoteTab quotes={project.quotes} />
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
