@@ -53,11 +53,9 @@ export function CreateProjectDialog({ clients }: CreateProjectDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-slate-900 hover:bg-slate-800 text-white">
-          <FolderPlus className="mr-2 h-4 w-4" />
-          Nuevo Proyecto
-        </Button>
+      <DialogTrigger render={<Button className="bg-slate-900 hover:bg-slate-800 text-white" />}>
+        <FolderPlus className="mr-2 h-4 w-4" />
+        Nuevo Proyecto
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form action={handleSubmit}>

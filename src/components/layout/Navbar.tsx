@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { logout } from '@/app/(auth)/actions';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, FolderPlus } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 export function Navbar({ userEmail }: { userEmail?: string | null }) {
   return (

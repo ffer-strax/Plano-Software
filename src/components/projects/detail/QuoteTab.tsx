@@ -59,7 +59,7 @@ export function QuoteTab({ quotes }: QuoteTabProps) {
                 <FileText className="h-4 w-4" /> Notas de la Cotización
               </h4>
               <p className="text-sm text-slate-600 bg-slate-50/50 rounded-lg p-4 border border-slate-100 italic">
-                "{latestQuote.notes}"
+                &quot;{latestQuote.notes}&quot;
               </p>
             </div>
           )}

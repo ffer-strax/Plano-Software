@@ -8,9 +8,7 @@ import {
   FileIcon,
   Download,
   Upload,
-  Loader2,
-  ExternalLink,
-  Plus
+  Loader2
 } from 'lucide-react';
 import type { ProjectFile } from '@/types';
 
@@ -55,15 +53,13 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
             onChange={handleFileUpload}
             disabled={isUploading}
           />
-          <Button asChild className="bg-slate-900 hover:bg-slate-800 pointer-events-none">
-            <span>
-              {isUploading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Upload className="mr-2 h-4 w-4" />
-              )}
-              Subir Archivo
-            </span>
+          <Button className="bg-slate-900 hover:bg-slate-800 pointer-events-none">
+            {isUploading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-2 h-4 w-4" />
+            )}
+            Subir Archivo
           </Button>
         </label>
       </div>

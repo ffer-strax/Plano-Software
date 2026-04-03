@@ -1,9 +1,6 @@
 import { getPortalProject } from './actions';
 import { PortalHeader } from '@/components/portal/PortalHeader';
 import { PortalContent } from '@/components/portal/PortalContent';
-import { Button } from '@/components/ui/button';
-import { LayoutDashboard } from 'lucide-react';
-import Link from 'next/link';
 
 export default async function PortalPage({ params }: { params: { token: string } }) {
   const project = await getPortalProject(params.token);
@@ -21,7 +18,7 @@ export default async function PortalPage({ params }: { params: { token: string }
     );
   }
 
-  const architectName = (project.users as any)?.full_name || 'Tu Arquitecto';
+  const architectName = (project.users as unknown as { full_name: string })?.full_name || 'Tu Arquitecto';
 
   return (
     <div className="min-h-screen bg-slate-50">

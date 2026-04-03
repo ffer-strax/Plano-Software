@@ -6,8 +6,9 @@ import { RoadmapTab } from '@/components/projects/detail/RoadmapTab';
 import { QuoteTab } from '@/components/projects/detail/QuoteTab';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, ChevronLeft, LayoutDashboard } from 'lucide-react';
+import { ChevronLeft, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import type { Client } from '@/types';
 
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -32,7 +33,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      <Navbar userEmail={user.email} />
+      <Navbar userEmail={user.email || ''} />
 
       {/* Header Detail */}
       <div className="bg-white border-b sticky top-0 z-10">
@@ -48,7 +49,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">{project.name}</h1>
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-slate-500">
-                {(project.clients as any)?.name || 'Sin Cliente'}
+                {(project.clients as unknown as Client)?.name || 'Sin Cliente'}
               </span>
               <span className="h-1 w-1 rounded-full bg-slate-300"></span>
               <span className="text-xs text-slate-400 capitalize">{project.status}</span>

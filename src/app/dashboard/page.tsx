@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { Folder, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import type { Client } from '@/types';
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -67,7 +68,7 @@ export default async function DashboardPage() {
                       {project.name}
                     </TableCell>
                     <TableCell className="text-slate-500">
-                      {(project.clients as any)?.name || (
+                      {(project.clients as unknown as Client)?.name || (
                         <span className="text-slate-400 italic text-xs">Sin cliente asignado</span>
                       )}
                     </TableCell>

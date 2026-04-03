@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import type { Milestone, ProjectFile } from '@/types';
 
 export async function getProjectDetail(id: string) {
   const supabase = createClient();
@@ -25,12 +26,12 @@ export async function getProjectDetail(id: string) {
 
   // Order milestones by order_index
   if (data.milestones) {
-    data.milestones.sort((a: any, b: any) => a.order_index - b.order_index);
+    data.milestones.sort((a: Milestone, b: Milestone) => a.order_index - b.order_index);
   }
 
   // Pre-sort files
   if (data.files) {
-    data.files.sort((a: any, b: any) => 
+    data.files.sort((a: ProjectFile, b: ProjectFile) => 
       new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime()
     );
   }
@@ -49,7 +50,7 @@ export async function uploadProjectFile(formData: FormData) {
   const fileName = `${Date.now()}_${file.name}`;
   const filePath = `${projectId}/${fileName}`;
   
-  const { data: storageData, error: storageError } = await supabase.storage
+  const { error: storageError } = await supabase.storage
     .from('project-files')
     .upload(filePath, file);
 

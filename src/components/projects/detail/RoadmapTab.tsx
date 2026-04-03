@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { updateMilestoneStatus } from '@/app/project/[id]/actions';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle2, Clock, PlayCircle, Loader2 } from 'lucide-react';
 import type { Milestone } from '@/types';
@@ -89,7 +87,7 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
                 ) : (
                   <Select 
                     defaultValue={milestone.status} 
-                    onValueChange={(val) => handleStatusChange(milestone.id, val)}
+                    onValueChange={(val) => val && handleStatusChange(milestone.id, val)}
                   >
                     <SelectTrigger className="w-[140px] h-9 text-xs">
                       <SelectValue />
@@ -103,7 +101,7 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
                 )}
               </div>
             </div>
-          ))}
+          )))}
       </div>
     </div>
   );
