@@ -33,6 +33,11 @@ export interface Project {
   portal_token: string;
   created_at: string;
   updated_at: string;
+  clients?: Client;
+  files?: ProjectFile[];
+  milestones?: Milestone[];
+  quotes?: Quote[];
+  time_logs?: TimeLog[];
 }
 
 export interface ProjectFile {
@@ -64,5 +69,14 @@ export interface Quote {
   currency: string;
   status: QuoteStatus;
   notes?: string;
+  created_at: string;
+}
+export interface TimeLog {
+  id: string;
+  project_id: string;
+  milestone_id?: string;
+  description: string;
+  hours: number;
+  date: string;
   created_at: string;
 }

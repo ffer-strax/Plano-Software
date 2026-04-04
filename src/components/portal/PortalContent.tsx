@@ -75,23 +75,64 @@ export function PortalContent({ files, milestones, quotes }: PortalContentProps)
                 <Progress value={progress} className="h-3 bg-slate-100" />
               </div>
 
-              <div className="space-y-4">
+              <div className="relative pl-8 space-y-0">
+                {/* Vertical Line */}
+                <div className="absolute left-3 top-2 bottom-6 w-0.5 bg-slate-100" />
+
                 {milestones.length === 0 ? (
                   <p className="py-20 text-center text-slate-400 italic">No hay etapas definidas aún.</p>
                 ) : (
-                  milestones.map((milestone) => (
-                    <div key={milestone.id} className="flex gap-4 p-5 rounded-xl border border-slate-100 bg-white hover:border-slate-300 transition-colors">
-                      <div className="mt-1">{getStatusIcon(milestone.status)}</div>
-                      <div className="space-y-1">
-                        <h4 className={`font-bold text-slate-900 ${milestone.status === 'done' ? 'line-through text-slate-400' : ''}`}>
-                          {milestone.title}
-                        </h4>
-                        {milestone.description && (
-                          <p className="text-sm text-slate-500">{milestone.description}</p>
-                        )}
+                  milestones.map((milestone) => {
+                    const isDone = milestone.status === 'done';
+                    const isInProgress = milestone.status === 'in_progress';
+
+                    return (
+                      <div key={milestone.id} className="relative pb-12 last:pb-0">
+                        {/* Milestone dot indicator */}
+                        <div className={`absolute -left-[27px] top-1 h-5 w-5 rounded-full border-4 border-white shadow-sm z-10 transition-colors duration-300 ${
+                          isDone ? 'bg-emerald-500' : isInProgress ? 'bg-blue-500 animate-pulse' : 'bg-slate-200'
+                        }`} />
+
+                        <div className={`group rounded-2xl border transition-all duration-300 p-6 ${
+                          isDone 
+                            ? 'bg-emerald-50/30 border-emerald-100/50' 
+                            : isInProgress 
+                              ? 'bg-blue-50/30 border-blue-100 shadow-md scale-[1.02]' 
+                              : 'bg-white border-slate-100 hover:border-slate-200'
+                        }`}>
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(milestone.status)}
+                              <h4 className={`font-bold text-lg tracking-tight ${
+                                isDone ? 'text-slate-400 line-through' : 'text-slate-900'
+                              }`}>
+                                {milestone.title}
+                              </h4>
+                            </div>
+                            
+                            {milestone.due_date && (
+                              <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-widest bg-white/50 backdrop-blur-sm border-slate-200 text-slate-500">
+                                {new Date(milestone.due_date).toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}
+                              </Badge>
+                            )}
+                          </div>
+
+                          {milestone.description && (
+                            <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">
+                              {milestone.description}
+                            </p>
+                          )}
+                          
+                          {isInProgress && (
+                            <div className="mt-4 flex items-center gap-2">
+                              <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-ping" />
+                              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">En desarrollo actualmente</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </TabsContent>
@@ -139,7 +180,9 @@ export function PortalContent({ files, milestones, quotes }: PortalContentProps)
                   <div className="flex items-center justify-between">
                     <Receipt className="h-5 w-5 text-slate-400" />
                     <Badge className="bg-white/10 text-white border-white/20 text-[10px] uppercase">
-                      {latestQuote.status}
+                      {latestQuote.status === 'draft' ? 'Borrador' : 
+                       latestQuote.status === 'sent' ? 'Enviada' : 
+                       latestQuote.status === 'approved' ? 'Aprobada' : latestQuote.status}
                     </Badge>
                   </div>
                   <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-2">Cotización</CardTitle>

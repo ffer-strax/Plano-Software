@@ -4,11 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FilesTab } from '@/components/projects/detail/FilesTab';
 import { RoadmapTab } from '@/components/projects/detail/RoadmapTab';
 import { QuoteTab } from '@/components/projects/detail/QuoteTab';
+import { TimeTab } from '@/components/projects/detail/TimeTab';
+import { CopyPortalLink } from '@/components/projects/detail/CopyPortalLink';
+import { EditProjectDialog } from '@/components/projects/detail/EditProjectDialog';
 import { createClient } from '@/lib/supabase/server';
+import { getClients } from '@/app/projects/actions';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
-import type { Client } from '@/types';
+import type { Client, Project } from '@/types';
 
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -16,7 +20,8 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   
   if (!user) return null;
 
-  const project = await getProjectDetail(params.id);
+  const project = await getProjectDetail(params.id) as Project;
+  const clients = await getClients();
 
   if (!project) {
     return (
@@ -57,8 +62,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           </div>
 
           <div className="flex items-center gap-3">
+            <EditProjectDialog project={project} clients={clients} />
+            <CopyPortalLink link={portalLink} />
             <Link href={portalLink} target="_blank">
-              <Button variant="outline" className="border-slate-200">
+              <Button variant="default" className="bg-slate-900 border-transparent hover:bg-slate-800 text-white">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 Vista Cliente
               </Button>
@@ -81,17 +88,27 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               <TabsTrigger value="quote" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
                 Cotización
               </TabsTrigger>
+              <TabsTrigger value="time" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+                Tiempo
+              </TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="files" className="mt-0 focus-visible:outline-none">
-            <FilesTab projectId={project.id} files={project.files} />
+            <FilesTab projectId={project.id} files={project.files || []} />
           </TabsContent>
           <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
-            <RoadmapTab projectId={project.id} milestones={project.milestones} />
+            <RoadmapTab projectId={project.id} milestones={project.milestones || []} />
           </TabsContent>
           <TabsContent value="quote" className="mt-0 focus-visible:outline-none">
-            <QuoteTab quotes={project.quotes} />
+            <QuoteTab projectId={project.id} quotes={project.quotes || []} />
+          </TabsContent>
+          <TabsContent value="time" className="mt-0 focus-visible:outline-none">
+            <TimeTab 
+              projectId={project.id} 
+              timeLogs={project.time_logs || []} 
+              milestones={project.milestones || []} 
+            />
           </TabsContent>
         </Tabs>
       </main>

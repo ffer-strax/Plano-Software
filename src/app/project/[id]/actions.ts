@@ -14,7 +14,8 @@ export async function getProjectDetail(id: string) {
       clients (*),
       files (*),
       milestones (*),
-      quotes (*)
+      quotes (*),
+      time_logs (*)
     `)
     .eq('id', id)
     .single();
@@ -87,6 +88,18 @@ export async function createMilestone(formData: FormData) {
   const description = formData.get('description') as string;
   const dueDate = formData.get('dueDate') as string;
 
+  // Get current max order_index
+  const { data: currentMilestones } = await supabase
+    .from('milestones')
+    .select('order_index')
+    .eq('project_id', projectId)
+    .order('order_index', { ascending: false })
+    .limit(1);
+    
+  const nextOrderIndex = currentMilestones && currentMilestones.length > 0 
+    ? (currentMilestones[0].order_index || 0) + 1 
+    : 0;
+
   const { error } = await supabase
     .from('milestones')
     .insert([
@@ -96,10 +109,65 @@ export async function createMilestone(formData: FormData) {
         description,
         due_date: dueDate || null,
         status: 'pending',
+        order_index: nextOrderIndex,
       },
     ]);
 
   if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function updateMilestone(formData: FormData) {
+  const supabase = createClient();
+  const milestoneId = formData.get('milestoneId') as string;
+  const projectId = formData.get('projectId') as string;
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const dueDate = formData.get('dueDate') as string;
+  const status = formData.get('status') as string;
+
+  const { error } = await supabase
+    .from('milestones')
+    .update({ 
+      title, 
+      description, 
+      due_date: dueDate || null,
+      status: status || 'pending'
+    })
+    .eq('id', milestoneId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function deleteMilestone(milestoneId: string, projectId: string) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('milestones')
+    .delete()
+    .eq('id', milestoneId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function updateMilestonesOrder(milestoneIds: string[], projectId: string) {
+  const supabase = createClient();
+
+  // Perform bulk updates
+  for (let i = 0; i < milestoneIds.length; i++) {
+    await supabase
+      .from('milestones')
+      .update({ order_index: i })
+      .eq('id', milestoneIds[i]);
+  }
 
   revalidatePath(`/project/${projectId}`);
   return { success: true };
@@ -112,6 +180,122 @@ export async function updateMilestoneStatus(milestoneId: string, status: string,
     .from('milestones')
     .update({ status })
     .eq('id', milestoneId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function createQuote(formData: FormData) {
+  const supabase = createClient();
+  const projectId = formData.get('projectId') as string;
+  const title = formData.get('title') as string;
+  const total = parseFloat(formData.get('total') as string) || 0;
+  const currency = (formData.get('currency') as string) || 'MXN';
+  const notes = formData.get('notes') as string;
+
+  const { error } = await supabase
+    .from('quotes')
+    .insert([{ project_id: projectId, title, total, currency, status: 'draft', notes }]);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function updateQuote(formData: FormData) {
+  const supabase = createClient();
+  const quoteId = formData.get('quoteId') as string;
+  const projectId = formData.get('projectId') as string;
+  const title = formData.get('title') as string;
+  const total = parseFloat(formData.get('total') as string) || 0;
+  const status = formData.get('status') as string;
+  const currency = (formData.get('currency') as string) || 'MXN';
+  const notes = formData.get('notes') as string;
+
+  const { error } = await supabase
+    .from('quotes')
+    .update({ title, total, status, currency, notes })
+    .eq('id', quoteId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function deleteQuote(quoteId: string, projectId: string) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('quotes')
+    .delete()
+    .eq('id', quoteId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function updateProject(formData: FormData) {
+  const supabase = createClient();
+  const projectId = formData.get('projectId') as string;
+  const name = formData.get('name') as string;
+  const description = formData.get('description') as string;
+  const status = formData.get('status') as string;
+  const clientId = formData.get('clientId') as string;
+
+  const { error } = await supabase
+    .from('projects')
+    .update({ 
+      name, 
+      description, 
+      status,
+      client_id: (clientId === 'none' || !clientId) ? null : clientId
+    })
+    .eq('id', projectId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  revalidatePath('/dashboard');
+  return { success: true };
+}
+
+export async function createTimeLog(formData: FormData) {
+  const supabase = createClient();
+  const projectId = formData.get('projectId') as string;
+  const description = formData.get('description') as string;
+  const hours = parseFloat(formData.get('hours') as string) || 0;
+  const date = formData.get('date') as string;
+  const milestoneId = formData.get('milestoneId') as string;
+
+  const { error } = await supabase
+    .from('time_logs')
+    .insert([{ 
+      project_id: projectId, 
+      description, 
+      hours, 
+      date, 
+      milestone_id: milestoneId === 'none' ? null : milestoneId 
+    }]);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function deleteTimeLog(logId: string, projectId: string) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from('time_logs')
+    .delete()
+    .eq('id', logId);
 
   if (error) return { error: error.message };
 

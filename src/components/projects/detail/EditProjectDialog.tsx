@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createProject } from '@/app/projects/actions';
+import { updateProject } from '@/app/project/[id]/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,14 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { FolderPlus, Loader2 } from 'lucide-react';
-import type { Client } from '@/types';
+import { Settings, Loader2 } from 'lucide-react';
+import type { Project, Client } from '@/types';
 
-interface CreateProjectDialogProps {
+interface EditProjectDialogProps {
+  project: Project;
   clients: Client[];
 }
 
-export function CreateProjectDialog({ clients }: CreateProjectDialogProps) {
+export function EditProjectDialog({ project, clients }: EditProjectDialogProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ export function CreateProjectDialog({ clients }: CreateProjectDialogProps) {
     setLoading(true);
     setError(null);
     
-    const result = await createProject(formData);
+    const result = await updateProject(formData);
     
     if (result.error) {
       setError(result.error);
@@ -53,16 +54,17 @@ export function CreateProjectDialog({ clients }: CreateProjectDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger render={<Button className="bg-slate-900 hover:bg-slate-800 text-white" />}>
-        <FolderPlus className="mr-2 h-4 w-4" />
-        Nuevo Proyecto
+      <DialogTrigger render={<Button variant="outline" className="border-slate-200" />}>
+        <Settings className="mr-2 h-4 w-4" />
+        Editar detalles
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form action={handleSubmit}>
+          <input type="hidden" name="projectId" value={project.id} />
           <DialogHeader>
-            <DialogTitle>Crear Proyecto</DialogTitle>
+            <DialogTitle>Editar Proyecto</DialogTitle>
             <DialogDescription>
-              Introduce los detalles del nuevo proyecto arquitectónico.
+              Modifica los detalles principales del proyecto.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -71,52 +73,46 @@ export function CreateProjectDialog({ clients }: CreateProjectDialogProps) {
               <Input
                 id="name"
                 name="name"
-                placeholder="Ej. Casa Bosque"
+                defaultValue={project.name}
                 required
                 disabled={loading}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Descripción (opcional)</Label>
+              <Label htmlFor="description">Descripción</Label>
               <Input
                 id="description"
                 name="description"
-                placeholder="Ej. Remodelación de interiores"
+                defaultValue={project.description || ''}
                 disabled={loading}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="template">Plantilla (Opcional)</Label>
-              <Select name="template" disabled={loading}>
+              <Label htmlFor="status">Estado del proyecto</Label>
+              <Select name="status" defaultValue={project.status} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Empezar desde blanco" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Proyecto en blanco</SelectItem>
-                  <SelectItem value="casa">Casa Habitación (Básica)</SelectItem>
-                  <SelectItem value="remodelacion">Remodelación Interior</SelectItem>
-                  <SelectItem value="comercial">Local Comercial</SelectItem>
+                  <SelectItem value="active">Activo</SelectItem>
+                  <SelectItem value="paused">En pausa</SelectItem>
+                  <SelectItem value="completed">Completado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="clientId">Cliente</Label>
-              <Select name="clientId" disabled={loading}>
+              <Select name="clientId" defaultValue={project.client_id || undefined} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar cliente" />
                 </SelectTrigger>
                 <SelectContent>
-                  {clients.length === 0 ? (
-                    <div className="p-2 text-sm text-slate-500 text-center">
-                      No tienes clientes registrados.
-                    </div>
-                  ) : (
-                    clients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name}
-                      </SelectItem>
-                    ))
-                  )}
+                  <SelectItem value="none">Sin cliente</SelectItem>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -143,7 +139,7 @@ export function CreateProjectDialog({ clients }: CreateProjectDialogProps) {
               disabled={loading}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Creando...' : 'Crear Proyecto'}
+              {loading ? 'Guardando...' : 'Guardar Cambios'}
             </Button>
           </DialogFooter>
         </form>
