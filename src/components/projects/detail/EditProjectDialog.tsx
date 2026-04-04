@@ -34,12 +34,22 @@ export function EditProjectDialog({ project, clients }: EditProjectDialogProps) 
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [portalPin, setPortalPin] = useState(project.portal_pin || '');
   const [error, setError] = useState<string | null>(null);
 
+  const isPinInvalid = portalPin.length > 0 && portalPin.length < 4;
+
   async function handleSubmit(formData: FormData) {
+    if (isPinInvalid) {
+      setError('El PIN debe ser exactamente de 4 dígitos');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
+    // Ensure the state value is used in the formData
+    formData.set('portalPin', portalPin);
     const result = await updateProject(formData);
     
     if (result.error) {
@@ -53,7 +63,13 @@ export function EditProjectDialog({ project, clients }: EditProjectDialogProps) 
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      setIsOpen(open);
+      if (!open) {
+        setPortalPin(project.portal_pin || '');
+        setError(null);
+      }
+    }}>
       <DialogTrigger render={<Button variant="outline" className="border-slate-200" />}>
         <Settings className="mr-2 h-4 w-4" />
         Editar detalles
@@ -117,17 +133,26 @@ export function EditProjectDialog({ project, clients }: EditProjectDialogProps) 
               </Select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="portalPin">PIN de Acceso al Portal (4 dígitos opcional)</Label>
+              <Label htmlFor="portalPin" className={isPinInvalid ? 'text-red-500' : ''}>
+                PIN de Acceso al Portal (4 dígitos numéricos)
+              </Label>
               <Input
                 id="portalPin"
                 name="portalPin"
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 maxLength={4}
                 placeholder="Ej. 1234"
-                defaultValue={project.portal_pin || ''}
+                value={portalPin}
+                onChange={(e) => setPortalPin(e.target.value.replace(/\D/g, ''))}
+                className={isPinInvalid ? 'border-red-500 focus-visible:ring-red-500' : ''}
                 disabled={loading}
               />
               <p className="text-[10px] text-slate-400">Si se deja vacío, el portal será de acceso directo.</p>
+              {isPinInvalid && (
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">El PIN debe ser de 4 dígitos</p>
+              )}
             </div>
           </div>
           
@@ -149,7 +174,7 @@ export function EditProjectDialog({ project, clients }: EditProjectDialogProps) 
             <Button
               type="submit"
               className="bg-slate-900 hover:bg-slate-800"
-              disabled={loading}
+              disabled={loading || isPinInvalid}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {loading ? 'Guardando...' : 'Guardar Cambios'}
