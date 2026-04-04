@@ -5,10 +5,10 @@ import { PortalHeader } from '@/components/portal/PortalHeader';
 import { PortalContent } from '@/components/portal/PortalContent';
 import { PortalLogin } from '@/components/portal/PortalLogin';
 import Link from 'next/link';
-import type { ProjectFile, Milestone, Quote } from '@/types';
+import type { Project } from '@/types';
 
 interface PortalClientViewProps {
-  project: any;
+  project: Project;
 }
 
 export function PortalClientView({ project }: PortalClientViewProps) {

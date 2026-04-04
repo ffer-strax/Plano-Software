@@ -1,7 +1,6 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -264,7 +263,7 @@ export function PortalContent({ files, milestones, quotes }: PortalContentProps)
                           Notas del Arquitecto
                         </h4>
                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-slate-600 text-sm leading-relaxed whitespace-pre-wrap italic">
-                          "{latestQuote.notes}"
+                          &quot;{latestQuote.notes}&quot;
                         </div>
                       </div>
                     )}

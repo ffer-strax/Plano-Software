@@ -39,6 +39,7 @@ export interface Project {
   milestones?: Milestone[];
   quotes?: Quote[];
   time_logs?: TimeLog[];
+  users?: { full_name: string };
 }
 
 export interface ProjectFile {
