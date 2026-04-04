@@ -14,12 +14,12 @@
 - [x] Onboarding de 5 pasos al registrarse
 
 ### Etapa 2 — Portal del cliente premium
-- [ ] Responsive móvil completo
-- [ ] Archivos descargables funcionando
-- [ ] Roadmap visual con progreso real
-- [ ] Cotización en solo lectura bien presentada
-- [ ] PIN de 4 dígitos opcional por proyecto para acceso seguro
-- [ ] "Potenciado por Plano" en footer como loop viral
+- [x] Responsive móvil completo
+- [x] Archivos descargables funcionando
+- [x] Roadmap visual con progreso real
+- [x] Cotización en solo lectura bien presentada
+- [x] PIN de 4 dígitos opcional por proyecto para acceso seguro
+- [x] "Potenciado por Plano" en footer como loop viral
 
 ### Etapa 3 — Monetización
 - [ ] Stripe con 3 planes: Free / Pro $299 MXN / Studio $599 MXN

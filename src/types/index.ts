@@ -31,6 +31,7 @@ export interface Project {
   description?: string;
   status: ProjectStatus;
   portal_token: string;
+  portal_pin?: string;
   created_at: string;
   updated_at: string;
   clients?: Client;

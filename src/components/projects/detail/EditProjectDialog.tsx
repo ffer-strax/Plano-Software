@@ -116,6 +116,19 @@ export function EditProjectDialog({ project, clients }: EditProjectDialogProps) 
                 </SelectContent>
               </Select>
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="portalPin">PIN de Acceso al Portal (4 dígitos opcional)</Label>
+              <Input
+                id="portalPin"
+                name="portalPin"
+                type="text"
+                maxLength={4}
+                placeholder="Ej. 1234"
+                defaultValue={project.portal_pin || ''}
+                disabled={loading}
+              />
+              <p className="text-[10px] text-slate-400">Si se deja vacío, el portal será de acceso directo.</p>
+            </div>
           </div>
           
           {error && (

@@ -287,6 +287,7 @@ export async function updateProject(formData: FormData) {
   const description = formData.get('description') as string;
   const status = formData.get('status') as string;
   const clientId = formData.get('clientId') as string;
+  const portalPin = formData.get('portalPin') as string;
 
   const { error } = await supabase
     .from('projects')
@@ -294,7 +295,8 @@ export async function updateProject(formData: FormData) {
       name, 
       description, 
       status,
-      client_id: (clientId === 'none' || !clientId) ? null : clientId
+      client_id: (clientId === 'none' || !clientId) ? null : clientId,
+      portal_pin: portalPin || null
     })
     .eq('id', projectId);
 
