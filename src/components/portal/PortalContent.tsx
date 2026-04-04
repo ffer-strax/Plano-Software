@@ -14,7 +14,6 @@ import {
   AlertCircle,
   Calendar,
   Layers,
-  ArrowRight,
   FileDown
 } from 'lucide-react';
 import type { ProjectFile, Milestone, Quote, ProjectStatus } from '@/types';
@@ -116,7 +115,8 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
 
     // Notes
     if (latestQuote.notes) {
-      const finalY = (doc as any).lastAutoTable.finalY + 20;
+      // @ts-expect-error - jspdf-autotable adds lastAutoTable to jsPDF instance
+      const finalY = doc.lastAutoTable.finalY + 20;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('Notas del Arquitecto:', 20, finalY);
