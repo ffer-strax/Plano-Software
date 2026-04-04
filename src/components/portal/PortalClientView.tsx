@@ -56,6 +56,8 @@ export function PortalClientView({ project }: PortalClientViewProps) {
 
       <main>
         <PortalContent 
+          projectName={project.name}
+          projectStatus={project.status}
           files={project.files || []}
           milestones={project.milestones || []}
           quotes={project.quotes || []}

@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   FileIcon, 
   Download, 
@@ -13,17 +14,22 @@ import {
   AlertCircle,
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  FileDown
 } from 'lucide-react';
-import type { ProjectFile, Milestone, Quote } from '@/types';
+import type { ProjectFile, Milestone, Quote, ProjectStatus } from '@/types';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface PortalContentProps {
+  projectName: string;
+  projectStatus: ProjectStatus;
   files: ProjectFile[];
   milestones: Milestone[];
   quotes: Quote[];
 }
 
-export function PortalContent({ files, milestones, quotes }: PortalContentProps) {
+export function PortalContent({ projectName, projectStatus, files, milestones, quotes }: PortalContentProps) {
   const completedCount = milestones.filter(m => m.status === 'done').length;
   const progress = milestones.length > 0 ? (completedCount / milestones.length) * 100 : 0;
   
@@ -55,6 +61,81 @@ export function PortalContent({ files, milestones, quotes }: PortalContentProps)
     if (t.includes('image') || t.includes('jpg') || t.includes('png')) return <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Layers className="h-5 w-5" /></div>;
     return <div className="p-2 bg-slate-50 text-slate-600 rounded-lg"><FileIcon className="h-5 w-5" /></div>;
   }
+
+  const translateStatus = (status: ProjectStatus) => {
+    const map: Record<ProjectStatus, string> = {
+      active: 'Activo',
+      paused: 'En Pausa',
+      completed: 'Finalizado'
+    };
+    return map[status] || status;
+  };
+
+  const downloadPDF = () => {
+    if (!latestQuote) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Header
+    doc.setFillColor(15, 23, 42); // slate-900
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PLANO', 20, 25);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('COTIZACIÓN DE PROYECTO', pageWidth - 20, 25, { align: 'right' });
+
+    // Project Info
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(latestQuote.title, 20, 60);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Proyecto: ${projectName}`, 20, 70);
+    doc.text(`Fecha: ${new Date(latestQuote.created_at).toLocaleDateString('es-MX')}`, 20, 75);
+    doc.text(`Estado: ${latestQuote.status === 'approved' ? 'Aprobado' : 'Pendiente'}`, 20, 80);
+
+    // Table
+    autoTable(doc, {
+      startY: 90,
+      head: [['Descripción', 'Total']],
+      body: [
+        [latestQuote.title, `${latestQuote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} ${latestQuote.currency}`]
+      ],
+      headStyles: { fillColor: [15, 23, 42], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      margin: { left: 20, right: 20 }
+    });
+
+    // Notes
+    if (latestQuote.notes) {
+      const finalY = (doc as any).lastAutoTable.finalY + 20;
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Notas del Arquitecto:', 20, finalY);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(100, 116, 139);
+      const splitNotes = doc.splitTextToSize(latestQuote.notes, pageWidth - 40);
+      doc.text(splitNotes, 20, finalY + 10);
+    }
+
+    // Footer
+    const pageHeight = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text('Generado profesionalmente por PLANO - plano.mx', pageWidth / 2, pageHeight - 15, { align: 'center' });
+
+    doc.save(`cotizacion_${latestQuote.title.toLowerCase().replace(/\s+/g, '_')}.pdf`);
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 md:py-12">
@@ -92,7 +173,7 @@ export function PortalContent({ files, milestones, quotes }: PortalContentProps)
                     </p>
                   </div>
                   <div className="bg-slate-900 px-4 py-2 rounded-xl flex flex-col items-center min-w-[90px] shadow-lg">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Completado</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{translateStatus(projectStatus)}</span>
                     <span className="text-2xl font-black text-white">{Math.round(progress)}%</span>
                   </div>
                 </div>
@@ -278,10 +359,13 @@ export function PortalContent({ files, milestones, quotes }: PortalContentProps)
                           <p className="text-xs text-slate-500">Documento base para el inicio de obra.</p>
                         </div>
                       </div>
-                      <button className="w-full md:w-auto h-12 px-8 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                      <Button 
+                        onClick={downloadPDF}
+                        className="w-full md:w-auto h-12 px-8 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                      >
                         Descargar PDF
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
+                        <FileDown className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
