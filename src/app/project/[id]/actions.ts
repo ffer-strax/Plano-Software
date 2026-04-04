@@ -81,6 +81,46 @@ export async function uploadProjectFile(formData: FormData) {
   return { success: true };
 }
 
+export async function deleteProjectFile(fileId: string, projectId: string) {
+  const supabase = createClient();
+
+  // 1. Get file details to get the path
+  const { data: file, error: fetchError } = await supabase
+    .from('files')
+    .select('url')
+    .eq('id', fileId)
+    .single();
+
+  if (fetchError || !file) return { error: 'Archivo no encontrado' };
+
+  // Derivar el path relativo del bucket desde la URL pública
+  // URL format: .../storage/v1/object/public/project-files/PROJECT_ID/FILE_NAME
+  const urlParts = file.url.split('project-files/');
+  const filePath = urlParts[urlParts.length - 1];
+
+  if (filePath) {
+    // 2. Delete from Storage
+    const { error: storageError } = await supabase.storage
+      .from('project-files')
+      .remove([filePath]);
+
+    if (storageError) {
+      console.error('Storage deletion error:', storageError);
+    }
+  }
+
+  // 3. Delete from Database
+  const { error: dbError } = await supabase
+    .from('files')
+    .delete()
+    .eq('id', fileId);
+
+  if (dbError) return { error: dbError.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
 export async function createMilestone(formData: FormData) {
   const supabase = createClient();
   const projectId = formData.get('projectId') as string;

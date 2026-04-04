@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { uploadProjectFile } from '@/app/project/[id]/actions';
+import { uploadProjectFile, deleteProjectFile } from '@/app/project/[id]/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   FileIcon,
   Download,
   Upload,
+  Trash2,
   Loader2
 } from 'lucide-react';
 import type { ProjectFile } from '@/types';
@@ -19,6 +20,7 @@ interface FilesTabProps {
 
 export function FilesTab({ projectId, files }: FilesTabProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -34,6 +36,17 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
       alert(result.error);
     }
     setIsUploading(false);
+  }
+
+  async function handleDeleteFile(fileId: string) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este archivo?')) return;
+    
+    setIsDeleting(fileId);
+    const result = await deleteProjectFile(fileId, projectId);
+    if (result.error) {
+      alert(result.error);
+    }
+    setIsDeleting(null);
   }
 
   function formatSize(bytes?: number) {
@@ -96,6 +109,19 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
                   >
                     <Download className="h-4 w-4" />
                   </a>
+                  <Button
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8 text-slate-300 hover:text-red-600"
+                    onClick={() => handleDeleteFile(file.id)}
+                    disabled={isDeleting === file.id}
+                  >
+                    {isDeleting === file.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
