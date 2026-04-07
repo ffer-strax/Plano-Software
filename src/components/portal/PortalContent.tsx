@@ -143,16 +143,16 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
         {/* Left Side: Navigation Tabs */}
         <div className="flex-1 space-y-8 md:space-y-10">
           <Tabs defaultValue="roadmap" className="w-full">
-            <div className="flex justify-center md:justify-start mb-6 md:mb-8">
-              <TabsList className="bg-white border p-1 h-12 w-full md:w-auto shadow-sm rounded-xl overflow-hidden">
-                <TabsTrigger value="roadmap" className="flex-1 md:flex-initial px-6 md:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
+            <div className="flex justify-start overflow-x-auto pb-1 mb-6 md:mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="bg-white border p-1 h-12 shadow-sm rounded-xl">
+                <TabsTrigger value="roadmap" className="px-5 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
                   Avance
                 </TabsTrigger>
-                <TabsTrigger value="files" className="flex-1 md:flex-initial px-6 md:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
+                <TabsTrigger value="files" className="px-5 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
                   Documentos
                 </TabsTrigger>
                 {latestQuote && (
-                  <TabsTrigger value="quote" className="flex-1 md:flex-initial px-6 md:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
+                  <TabsTrigger value="quote" className="px-5 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
                     Presupuesto
                   </TabsTrigger>
                 )}
@@ -380,7 +380,7 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
 
         {/* Right Side: Quick Info (Sidebar) */}
         {!latestQuote && (
-          <div className="w-full lg:w-[320px] shrink-0">
+          <div className="hidden lg:block w-full lg:w-[320px] shrink-0">
             <div className="sticky top-24 md:top-32 space-y-6">
               <div className="p-6 md:p-8 rounded-[2rem] bg-white border border-slate-100 shadow-sm md:shadow-md space-y-6 relative overflow-hidden group">
                 <div className="absolute -top-10 -right-10 h-32 w-32 bg-slate-50 rounded-full -z-0 scale-0 group-hover:scale-100 transition-transform duration-500" />

@@ -61,7 +61,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <EditProjectDialog project={project} clients={clients} />
             <CopyPortalLink link={portalLink} />
             <Link href={portalLink} target="_blank">
@@ -77,18 +77,18 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       {/* Content Area */}
       <main className="mx-auto max-w-5xl px-4 py-10">
         <Tabs defaultValue="files" className="space-y-8">
-          <div className="flex justify-center md:justify-start">
-            <TabsList className="bg-white border p-1 h-12">
-              <TabsTrigger value="files" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+          <div className="flex justify-start overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <TabsList className="bg-white border p-0.5 h-11 sm:p-1 sm:h-12">
+              <TabsTrigger value="files" className="px-4 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
                 Archivos
               </TabsTrigger>
-              <TabsTrigger value="roadmap" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+              <TabsTrigger value="roadmap" className="px-4 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
                 Roadmap
               </TabsTrigger>
-              <TabsTrigger value="quote" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+              <TabsTrigger value="quote" className="px-4 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
                 Cotización
               </TabsTrigger>
-              <TabsTrigger value="time" className="px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
+              <TabsTrigger value="time" className="px-4 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all">
                 Tiempo
               </TabsTrigger>
             </TabsList>
