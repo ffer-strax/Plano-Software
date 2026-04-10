@@ -16,6 +16,8 @@ interface QuoteTabProps {
   quotes: Quote[];
 }
 
+import { Switch } from '@/components/ui/switch';
+
 export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
@@ -66,51 +68,63 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Cotizado</p>
-          <h3 className="text-3xl font-black text-slate-900">
-            ${totalQuoted.toLocaleString('es-MX', { minimumFractionDigits: 2 })} <span className="text-sm font-medium text-slate-400">MXN</span>
-          </h3>
+        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Cotizado</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-4xl font-black text-slate-900">
+              ${totalQuoted.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </h3>
+            <span className="text-sm font-bold text-slate-400 uppercase">MXN</span>
+          </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Aprobado</p>
-          <h3 className="text-3xl font-black text-emerald-500">
-            ${totalApproved.toLocaleString('es-MX', { minimumFractionDigits: 2 })} <span className="text-sm font-medium text-emerald-300">MXN</span>
-          </h3>
+        <div className="bg-emerald-50/30 p-8 rounded-2xl border border-emerald-100 shadow-sm transition-all hover:shadow-md">
+          <p className="text-xs font-bold text-emerald-600 uppercase tracking-[0.2em] mb-2">Aprobado</p>
+          <div className="flex items-baseline gap-2">
+            <h3 className="text-4xl font-black text-emerald-600">
+              ${totalApproved.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+            </h3>
+            <span className="text-sm font-bold text-emerald-400 uppercase">MXN</span>
+          </div>
         </div>
       </div>
 
       <div className="space-y-4">
         {quotes.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
-            <Receipt className="h-10 w-10 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 font-medium">No hay cotizaciones para este proyecto aún.</p>
+          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-100">
+            <div className="bg-slate-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Receipt className="h-8 w-8 text-slate-300" />
+            </div>
+            <p className="text-slate-500 font-medium tracking-tight">No hay cotizaciones registradas.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {quotes.map(quote => (
               <div 
                 key={quote.id} 
-                className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:shadow-sm transition-all group"
+                className="flex items-center gap-4 bg-white p-5 rounded-2xl border border-slate-100 hover:border-emerald-200 hover:shadow-lg transition-all group"
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h4 className="font-bold text-slate-900 truncate">{quote.title}</h4>
-                    <Badge className={`text-[10px] font-bold uppercase tracking-tighter h-4 px-1 ${getStatusStyle(quote.status)}`}>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h4 className="font-bold text-slate-900 truncate text-lg">{quote.title}</h4>
+                    <Badge className={`text-[10px] font-bold uppercase tracking-widest h-5 px-2 ${getStatusStyle(quote.status)}`}>
                       {getStatusText(quote.status)}
                     </Badge>
                   </div>
-                  <p className="text-xl font-black text-slate-900">
-                    ${quote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} <span className="text-[10px] font-medium text-slate-400">{quote.currency}</span>
-                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl font-black text-slate-900 tracking-tight">
+                      ${quote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </p>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{quote.currency}</span>
+                  </div>
                 </div>
 
-                {/* Visibility Toggle (Visual Only) */}
-                <div className="flex items-center gap-2 px-4 border-l border-slate-50">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Visible to client</span>
-                  <div className="h-5 w-9 bg-emerald-500 rounded-full relative shadow-inner cursor-pointer">
-                    <div className="absolute right-1 top-1 h-3 w-3 bg-white rounded-full shadow-sm" />
-                  </div>
+                {/* Visibility Toggle (Functional in UI) */}
+                <div className="flex items-center gap-2 px-6 border-l border-slate-50">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline tracking-tighter">Portal</span>
+                  <Switch 
+                    defaultChecked={true}
+                    className="data-[state=checked]:bg-emerald-500 scale-75 md:scale-90"
+                  />
                 </div>
 
                 {/* Status Dropdown */}

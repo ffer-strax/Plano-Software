@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CheckCircle2, Clock, Loader2, Plus, Trash2 } from 'lucide-react';
 import type { Milestone, MilestoneStatus } from '@/types';
+import { Switch } from '@/components/ui/switch';
 
 interface RoadmapTabProps {
   projectId: string;
@@ -75,20 +76,26 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
       {/* Progress Section */}
-      <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-slate-900">Overall Progress</h3>
-          <span className="text-2xl font-black text-emerald-500">{Math.round(progress)}%</span>
+      <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm mb-8 flex items-center justify-between gap-8">
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-slate-900">Progreso General del Proyecto</h3>
+            <span className="text-2xl font-black text-emerald-500">{Math.round(progress)}%</span>
+          </div>
+          <Progress value={progress} className="h-3 bg-slate-100" />
         </div>
-        <Progress value={progress} className="h-3 bg-slate-100" />
+        <div className="hidden md:flex flex-col items-center p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-1">Hitos</span>
+          <span className="text-2xl font-black text-emerald-700">{completedCount}/{localMilestones.length}</span>
+        </div>
       </div>
 
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Project Roadmap</h3>
-          <Button size="sm" onClick={() => setCreateDialogOpen(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white border-none h-9">
+          <h3 className="text-lg font-bold text-slate-900">Pasos del Proyecto (Roadmap)</h3>
+          <Button size="sm" onClick={() => setCreateDialogOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white border-none h-10 px-6">
             <Plus className="h-4 w-4 mr-2" />
-            Add Milestone
+            Nuevo Hito
           </Button>
         </div>
 
@@ -105,68 +112,84 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
             localMilestones.map((milestone) => (
               <div 
                 key={milestone.id} 
-                className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:shadow-sm transition-all group"
+                className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:shadow-md transition-all group"
               >
                 {/* Status Checkbox */}
                 <button 
                   onClick={() => handleStatusChange(milestone.id, milestone.status === 'done' ? 'pending' : 'done')}
                   disabled={updatingId === milestone.id}
-                  className={`h-6 w-6 rounded-md flex items-center justify-center border-2 transition-colors shrink-0 ${
+                  className={`h-7 w-7 rounded-lg flex items-center justify-center border-2 transition-all shrink-0 ${
                     milestone.status === 'done' 
-                      ? 'bg-emerald-500 border-emerald-500 text-white' 
-                      : 'border-slate-200 hover:border-emerald-400 bg-white'
+                      ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                      : 'border-slate-200 hover:border-emerald-400 bg-slate-50'
                   }`}
                 >
                   {milestone.status === 'done' ? (
                     <CheckCircle2 className="h-4 w-4" />
                   ) : updatingId === milestone.id ? (
-                    <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+                    <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
                   ) : null}
                 </button>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h4 className={`font-semibold text-slate-900 truncate ${milestone.status === 'done' ? 'text-slate-400 line-through decoration-slate-300' : ''}`}>
+                  <h4 className={`font-bold text-slate-900 truncate text-base ${milestone.status === 'done' ? 'text-slate-400 line-through decoration-slate-300' : ''}`}>
                     {milestone.title}
                   </h4>
-                  {milestone.due_date && (
-                    <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">
-                      Due: {new Date(milestone.due_date).toLocaleDateString('es-MX')}
-                    </p>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {milestone.due_date ? (
+                      <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-1 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Límite: {new Date(milestone.due_date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                      </p>
+                    ) : (
+                      <p className="text-[10px] font-bold text-slate-300 tracking-wider uppercase mt-1">
+                        Sin fecha asignada
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                {/* Status Badge */}
+                {/* Status Selector */}
                 <div className="hidden sm:block">
                   <Select 
                     defaultValue={milestone.status} 
                     onValueChange={(val) => val && handleStatusChange(milestone.id, val)}
                   >
-                    <SelectTrigger className="h-8 w-32 bg-slate-50 border-none text-xs font-bold text-slate-600">
+                    <SelectTrigger className="h-9 w-36 bg-slate-50 border-slate-100 text-xs font-bold text-slate-600 focus:ring-emerald-500/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="done">Completed</SelectItem>
+                      <SelectItem value="pending">Pendiente</SelectItem>
+                      <SelectItem value="in_progress">En curso</SelectItem>
+                      <SelectItem value="done">Completado</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Visibility Toggle (Visual Only as per instruction to not change logic) */}
+                {/* Visibility Toggle (Functional in UI) */}
                 <div className="flex items-center gap-2 px-4 border-l border-slate-50">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Visible to client</span>
-                  <div className="h-5 w-9 bg-emerald-500 rounded-full relative shadow-inner cursor-pointer">
-                    <div className="absolute right-1 top-1 h-3 w-3 bg-white rounded-full shadow-sm" />
-                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline tracking-tighter">Portal</span>
+                  <Switch 
+                    defaultChecked={true}
+                    className="data-[state=checked]:bg-emerald-500 scale-75 md:scale-90"
+                  />
                 </div>
 
                 {/* Menu / Actions */}
                 <div className="flex items-center gap-1">
+                   <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-9 w-9 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50" 
+                    onClick={() => setEditingMilestone(milestone)}
+                  >
+                    <Plus className="h-4 w-4 rotate-45" />
+                  </Button>
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50" 
+                    className="h-9 w-9 text-slate-400 hover:text-red-500 hover:bg-red-50" 
                     onClick={() => handleDelete(milestone.id)} 
                     disabled={isDeletingId === milestone.id}
                   >
@@ -200,7 +223,7 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
             </div>
             <DialogFooter className="mt-6">
               <Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancelar</Button>
-              <Button type="submit" disabled={isCreating}>
+              <Button type="submit" disabled={isCreating} className="bg-emerald-600 hover:bg-emerald-700">
                 {isCreating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Crear Hito
               </Button>
@@ -234,7 +257,7 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
               </div>
               <DialogFooter className="mt-6">
                 <Button type="button" variant="outline" onClick={() => setEditingMilestone(null)}>Cancelar</Button>
-                <Button type="submit">
+                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">
                   Guardar Cambios
                 </Button>
               </DialogFooter>

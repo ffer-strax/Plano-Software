@@ -11,6 +11,7 @@ import {
   Download
 } from 'lucide-react';
 import type { ProjectFile } from '@/types';
+import { Switch } from '@/components/ui/switch';
 
 interface FilesTabProps {
   projectId: string;
@@ -73,8 +74,8 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
             <div className="p-3 bg-emerald-50 rounded-full mb-3 text-emerald-500 group-hover:scale-110 transition-transform">
               <UploadCloud className="w-8 h-8" />
             </div>
-            <p className="mb-2 text-sm text-slate-700 font-bold">Upload a file</p>
-            <p className="text-xs text-slate-400">Select category then choose a file</p>
+            <p className="mb-2 text-sm text-slate-700 font-bold">Subir un archivo</p>
+            <p className="text-xs text-slate-400">Selecciona una categoría y elige un archivo</p>
             
             <div className="mt-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <Select defaultValue="other" onValueChange={(val) => val && setSelectedCategory(val)}>
@@ -82,14 +83,14 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="plans">Plans</SelectItem>
-                  <SelectItem value="permits">Permits</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="plans">Planos</SelectItem>
+                  <SelectItem value="permits">Permisos</SelectItem>
+                  <SelectItem value="other">Otros</SelectItem>
                 </SelectContent>
               </Select>
               
               <Button size="sm" className="bg-slate-900 border-none h-9 hover:bg-slate-800 relative">
-                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Choose File"}
+                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Elegir archivo"}
                 <input
                   type="file"
                   className="absolute inset-0 opacity-0 cursor-pointer"
@@ -113,7 +114,7 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
             {plans.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 lowercase font-medium">Plans</Badge>
+                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 lowercase font-medium">Planos</Badge>
                   <span className="text-[10px] font-bold text-slate-400">({plans.length})</span>
                 </div>
                 {plans.map(file => <FileRow key={file.id} file={file} isDeleting={isDeleting === file.id} onDelete={() => handleDeleteFile(file.id)} formatSize={formatSize} />)}
@@ -123,7 +124,7 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
             {others.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge className="bg-amber-50 text-amber-600 border-amber-100 lowercase font-medium">Other</Badge>
+                  <Badge className="bg-amber-50 text-amber-600 border-amber-100 lowercase font-medium">Otros</Badge>
                   <span className="text-[10px] font-bold text-slate-400">({others.length})</span>
                 </div>
                 {others.map(file => <FileRow key={file.id} file={file} isDeleting={isDeleting === file.id} onDelete={() => handleDeleteFile(file.id)} formatSize={formatSize} />)}
@@ -154,10 +155,11 @@ function FileRow({ file, isDeleting, onDelete, formatSize }: { file: ProjectFile
       </div>
 
       <div className="flex items-center gap-2 px-4 border-l border-slate-50">
-        <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Client</span>
-        <div className="h-5 w-9 bg-emerald-500 rounded-full relative shadow-inner cursor-pointer">
-          <div className="absolute right-1 top-1 h-3 w-3 bg-white rounded-full shadow-sm" />
-        </div>
+        <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline tracking-tighter">Portal</span>
+        <Switch 
+          defaultChecked={true}
+          className="data-[state=checked]:bg-emerald-500 scale-75 md:scale-90"
+        />
       </div>
 
       <div className="flex items-center gap-1">

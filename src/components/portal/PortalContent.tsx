@@ -143,16 +143,25 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
         {/* Left Side: Navigation Tabs */}
         <div className="flex-1 space-y-8 md:space-y-10">
           <Tabs defaultValue="roadmap" className="w-full">
-            <div className="flex justify-start overflow-x-auto pb-1 mb-6 md:mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
-              <TabsList className="bg-white border p-1 h-12 shadow-sm rounded-xl">
-                <TabsTrigger value="roadmap" className="px-5 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
+            <div className="flex justify-start border-b border-slate-200 mb-8 overflow-x-auto">
+              <TabsList className="bg-transparent border-none p-0 h-auto gap-1">
+                <TabsTrigger 
+                  value="roadmap" 
+                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
+                >
                   Avance
                 </TabsTrigger>
-                <TabsTrigger value="files" className="px-5 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
+                <TabsTrigger 
+                  value="files" 
+                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
+                >
                   Documentos
                 </TabsTrigger>
                 {latestQuote && (
-                  <TabsTrigger value="quote" className="px-5 sm:px-8 h-10 data-[state=active]:bg-slate-900 data-[state=active]:text-white rounded-lg transition-all">
+                  <TabsTrigger 
+                    value="quote" 
+                    className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
+                  >
                     Presupuesto
                   </TabsTrigger>
                 )}
