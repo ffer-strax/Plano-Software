@@ -1,17 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
-import { Navbar } from '@/components/layout/Navbar';
+import { Sidebar } from '@/components/layout/Navbar';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { getProjects, getClients } from '@/app/projects/actions';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Folder, ArrowRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Folder, ArrowRight, Search, FileText, Clock } from 'lucide-react';
 import Link from 'next/link';
 import type { Client } from '@/types';
 
@@ -24,84 +17,124 @@ export default async function DashboardPage() {
   const projects = await getProjects();
   const clients = await getClients();
 
+  const activeProjects = projects.filter(p => p.status === 'active').length;
+  const totalProjects = projects.length;
+  // Note: we don't have access to all quotes here without changing logic, so we show 0 or a dash
+  const pendingQuotes = 0; 
+
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar userEmail={user.email} />
+      <Sidebar userEmail={user.email} />
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
+      <main className="md:ml-52 p-8">
+        <div className="mb-10 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Mis Proyectos</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Gestiona tus proyectos y portal de clientes desde aquí.
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Panel Principal</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Gestiona tus proyectos de arquitectura
             </p>
           </div>
           <CreateProjectDialog clients={clients} />
         </div>
 
-        {projects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 text-slate-400">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500 mb-1">Proyectos Activos</p>
+              <h3 className="text-3xl font-bold text-slate-900">{activeProjects}</h3>
+            </div>
+            <div className="h-12 w-12 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-500">
               <Folder className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-medium text-slate-900">No tienes proyectos aún</h3>
-            <p className="mt-1 text-sm text-slate-500 max-w-xs">
+          </div>
+          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500 mb-1">Cotizaciones Pendientes</p>
+              <h3 className="text-3xl font-bold text-slate-900">{pendingQuotes}</h3>
+            </div>
+            <div className="h-12 w-12 bg-amber-50 rounded-lg flex items-center justify-center text-amber-500">
+              <FileText className="h-6 w-6" />
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500 mb-1">Total de Proyectos</p>
+              <h3 className="text-3xl font-bold text-slate-900">{totalProjects}</h3>
+            </div>
+            <div className="h-12 w-12 bg-slate-50 rounded-lg flex items-center justify-center text-slate-500">
+              <Clock className="h-6 w-6" />
+            </div>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative mb-10">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input 
+            className="pl-10 h-11 bg-white border-slate-200 rounded-lg shadow-sm" 
+            placeholder="Buscar proyectos o clientes..." 
+          />
+        </div>
+
+        {projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-slate-400">
+              <Folder className="h-8 w-8" />
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900">No hay proyectos aún</h3>
+            <p className="mt-2 text-sm text-slate-500 max-w-xs">
               Comienza creando tu primer proyecto para invitar a tus clientes y compartir archivos.
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50/50">
-                  <TableHead className="w-[300px]">Nombre del Proyecto</TableHead>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead className="text-right"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {projects.map((project) => (
-                  <TableRow key={project.id} className="hover:bg-slate-50/30 group">
-                    <TableCell className="font-medium text-slate-900">
-                      {project.name}
-                    </TableCell>
-                    <TableCell className="text-slate-500">
-                      {(project.clients as unknown as Client)?.name || (
-                        <span className="text-slate-400 italic text-xs">Sin cliente asignado</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={project.status === 'active' ? 'default' : 'secondary'}
-                        className={project.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-50' : ''}
-                      >
-                        {project.status === 'active' ? 'Activo' : project.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-500">
-                      {new Date(project.created_at).toLocaleDateString('es-MX', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Link 
-                        href={`/project/${project.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-slate-400 group-hover:text-slate-900 transition-colors"
-                      >
-                        Gestionar
-                        <ArrowRight className="h-3 w-3" />
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+            {projects.map((project) => (
+              <Link 
+                key={project.id} 
+                href={`/project/${project.id}`}
+                className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                    {project.name}
+                  </h3>
+                  <Badge 
+                    className={project.status === 'active' 
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                      : 'bg-slate-50 text-slate-600 border-slate-100'
+                    }
+                  >
+                    {project.status === 'active' ? 'Activo' : project.status}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+                  <span className="font-medium">
+                    {(project.clients as unknown as Client)?.name || 'Sin cliente asignado'}
+                  </span>
+                </div>
+
+                <p className="text-sm text-slate-600 mb-6 line-clamp-2">
+                  {project.description || 'Sin descripción disponible.'}
+                </p>
+
+                <div className="pt-4 border-t border-slate-50 flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Clock className="h-3.5 w-3.5" />
+                    {new Date(project.created_at).toLocaleDateString('es-MX', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                </div>
+              </Link>
+            ))}
           </div>
         )}
+
       </main>
     </div>
   );

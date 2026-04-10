@@ -5,8 +5,7 @@ import {
   createMilestone, 
   updateMilestoneStatus, 
   updateMilestone, 
-  deleteMilestone, 
-  updateMilestonesOrder 
+  deleteMilestone
 } from '@/app/project/[id]/actions';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { CheckCircle2, Clock, PlayCircle, Loader2, Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { CheckCircle2, Clock, Loader2, Plus, Trash2 } from 'lucide-react';
 import type { Milestone, MilestoneStatus } from '@/types';
 
 interface RoadmapTabProps {
@@ -73,123 +72,106 @@ export function RoadmapTab({ projectId, milestones }: RoadmapTabProps) {
     }
   }
 
-  async function moveMilestone(index: number, direction: 'up' | 'down') {
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === localMilestones.length - 1) return;
-    
-    const newOrder = [...localMilestones];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
-    [newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]];
-    setLocalMilestones(newOrder); // Optimistic update
-    
-    await updateMilestonesOrder(newOrder.map(m => m.id), projectId);
-  }
-
-  function getStatusIcon(status: string) {
-    switch (status) {
-      case 'done': return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
-      case 'in_progress': return <PlayCircle className="h-4 w-4 text-blue-500" />;
-      default: return <Clock className="h-4 w-4 text-slate-400" />;
-    }
-  }
-
   return (
-    <div className="space-y-8">
-      {/* Progress Header */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 relative">
-        <div className="flex items-center justify-between mb-4">
-          <div className="space-y-1">
-            <h3 className="font-semibold text-slate-900">Progreso del Proyecto</h3>
-            <p className="text-sm text-slate-500">
-              {completedCount} de {localMilestones.length} tareas completadas
-            </p>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-3xl font-bold text-slate-900">
-              {Math.round(progress)}%
-            </span>
-          </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      {/* Progress Section */}
+      <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-slate-900">Overall Progress</h3>
+          <span className="text-2xl font-black text-emerald-500">{Math.round(progress)}%</span>
         </div>
-        <Progress value={progress} className="h-2 bg-slate-100" />
+        <Progress value={progress} className="h-3 bg-slate-100" />
       </div>
 
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-slate-900">Hitos/Tareas</h3>
-          <Button size="sm" onClick={() => setCreateDialogOpen(true)}>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-bold text-slate-900">Project Roadmap</h3>
+          <Button size="sm" onClick={() => setCreateDialogOpen(true)} className="bg-emerald-500 hover:bg-emerald-600 text-white border-none h-9">
             <Plus className="h-4 w-4 mr-2" />
-            Nuevo Hito
+            Add Milestone
           </Button>
         </div>
 
         <div className="space-y-3">
           {localMilestones.length === 0 ? (
-            <p className="text-center py-10 text-slate-400 italic bg-white rounded-lg border border-slate-100">
-              No hay hitos definidos para este proyecto.
-            </p>
+            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+              <Clock className="h-10 w-10 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">No hay hitos definidos para este proyecto.</p>
+              <Button variant="link" className="text-emerald-500 mt-2" onClick={() => setCreateDialogOpen(true)}>
+                Crear el primero
+              </Button>
+            </div>
           ) : (
-            localMilestones.map((milestone, index) => (
+            localMilestones.map((milestone) => (
               <div 
                 key={milestone.id} 
-                className="flex items-start justify-between gap-4 rounded-lg border border-slate-100 bg-white p-4 hover:border-slate-200 transition-colors shadow-sm group"
+                className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:shadow-sm transition-all group"
               >
-                <div className="flex gap-4 w-full">
-                  <div className="mt-1 shrink-0">
-                    {getStatusIcon(milestone.status)}
-                  </div>
-                  <div className="space-y-1 w-full">
-                    <h4 className={`font-medium text-slate-900 ${milestone.status === 'done' ? 'line-through text-slate-400' : ''}`}>
-                      {milestone.title}
-                    </h4>
-                    {milestone.description && (
-                      <p className="text-sm text-slate-500">{milestone.description}</p>
-                    )}
-                    {milestone.due_date && (
-                      <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase mt-2">
-                        LÍMITE: {new Date(milestone.due_date).toLocaleDateString('es-MX')}
-                      </p>
-                    )}
-                  </div>
+                {/* Status Checkbox */}
+                <button 
+                  onClick={() => handleStatusChange(milestone.id, milestone.status === 'done' ? 'pending' : 'done')}
+                  disabled={updatingId === milestone.id}
+                  className={`h-6 w-6 rounded-md flex items-center justify-center border-2 transition-colors shrink-0 ${
+                    milestone.status === 'done' 
+                      ? 'bg-emerald-500 border-emerald-500 text-white' 
+                      : 'border-slate-200 hover:border-emerald-400 bg-white'
+                  }`}
+                >
+                  {milestone.status === 'done' ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : updatingId === milestone.id ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
+                  ) : null}
+                </button>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h4 className={`font-semibold text-slate-900 truncate ${milestone.status === 'done' ? 'text-slate-400 line-through decoration-slate-300' : ''}`}>
+                    {milestone.title}
+                  </h4>
+                  {milestone.due_date && (
+                    <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">
+                      Due: {new Date(milestone.due_date).toLocaleDateString('es-MX')}
+                    </p>
+                  )}
                 </div>
-                
-                <div className="flex items-center gap-4 shrink-0 transition-opacity">
+
+                {/* Status Badge */}
+                <div className="hidden sm:block">
                   <Select 
                     defaultValue={milestone.status} 
                     onValueChange={(val) => val && handleStatusChange(milestone.id, val)}
                   >
-                    <SelectTrigger className="w-[130px] h-8 text-xs border-slate-200 bg-slate-50/50">
+                    <SelectTrigger className="h-8 w-32 bg-slate-50 border-none text-xs font-bold text-slate-600">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pendiente</SelectItem>
-                      <SelectItem value="in_progress">En progreso</SelectItem>
-                      <SelectItem value="done">Terminado</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="done">Completed</SelectItem>
                     </SelectContent>
                   </Select>
-                  
-                  {updatingId === milestone.id && (
-                    <Loader2 className="h-4 w-4 animate-spin text-slate-400 absolute right-2" />
-                  )}
+                </div>
 
-                  <div className="flex items-center border-l pl-4 gap-1">
-                    <div className="flex flex-col">
-                      <Button variant="ghost" className="h-6 w-6 p-0 hover:bg-slate-100" onClick={() => moveMilestone(index, 'up')} disabled={index === 0}>
-                        <ArrowUp className="h-3 w-3 text-slate-400" />
-                      </Button>
-                      <Button variant="ghost" className="h-6 w-6 p-0 hover:bg-slate-100" onClick={() => moveMilestone(index, 'down')} disabled={index === localMilestones.length - 1}>
-                        <ArrowDown className="h-3 w-3 text-slate-400" />
-                      </Button>
-                    </div>
-                    
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100" onClick={() => setEditingMilestone(milestone)}>
-                      <Pencil className="h-4 w-4 text-slate-400" />
-                    </Button>
-                    
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => handleDelete(milestone.id)} disabled={isDeletingId === milestone.id}>
-                      {isDeletingId === milestone.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                    </Button>
+                {/* Visibility Toggle (Visual Only as per instruction to not change logic) */}
+                <div className="flex items-center gap-2 px-4 border-l border-slate-50">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase hidden md:inline">Visible to client</span>
+                  <div className="h-5 w-9 bg-emerald-500 rounded-full relative shadow-inner cursor-pointer">
+                    <div className="absolute right-1 top-1 h-3 w-3 bg-white rounded-full shadow-sm" />
                   </div>
+                </div>
+
+                {/* Menu / Actions */}
+                <div className="flex items-center gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50" 
+                    onClick={() => handleDelete(milestone.id)} 
+                    disabled={isDeletingId === milestone.id}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             )))}
