@@ -12,7 +12,7 @@ import { ChevronLeft, Mail, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import type { Client, Project } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 import { PortalSettingsTab } from '@/components/projects/detail/PortalSettingsTab';
 
