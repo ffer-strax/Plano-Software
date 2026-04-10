@@ -8,7 +8,7 @@ import { EditProjectDialog } from '@/components/projects/detail/EditProjectDialo
 import { createClient } from '@/lib/supabase/server';
 import { getClients } from '@/app/projects/actions';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Mail, User as UserIcon } from 'lucide-react';
+import { ChevronLeft, Mail, User as UserIcon, BarChart3, Files, Receipt } from 'lucide-react';
 import Link from 'next/link';
 import type { Client, Project } from '@/types';
 import { Badge } from '@/components/ui/badge';
@@ -38,39 +38,44 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
   const client = project.clients as unknown as Client;
 
+  const milestonesCount = project.milestones?.length || 0;
+  const filesCount = project.files?.length || 0;
+  const quotesCount = project.quotes?.length || 0;
+  const completedMilestones = project.milestones?.filter(m => m.status === 'done').length || 0;
+  const progressPercent = milestonesCount > 0 ? Math.round((completedMilestones / milestonesCount) * 100) : 0;
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       <Sidebar userEmail={user.email || ''} />
       
-      <main className="md:ml-52">
-        <Tabs defaultValue="overview" className="space-y-0">
-          {/* Sticky Header Section */}
-          <header className="sticky top-0 z-30 bg-slate-50/80 backdrop-blur-md border-b border-slate-200/60 px-8 py-5">
-            <div className="flex flex-col gap-4">
+      <main className="md:ml-52 min-h-screen flex flex-col">
+        <Tabs defaultValue="overview" className="flex-1 flex flex-col">
+          {/* Header Section - Integrated with Tabs */}
+          <header className="bg-white border-b border-slate-100 px-10 py-8">
+            <div className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <Link 
                     href="/dashboard" 
-                    className="group flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-emerald-600 transition-colors mb-2"
+                    className="group flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-emerald-600 transition-colors"
                   >
-                    <ChevronLeft className="h-3 w-3 mr-1 transition-transform group-hover:-translate-x-1" />
+                    <ChevronLeft className="h-3 w-3 mr-1" />
                     Volver al Dashboard
                   </Link>
                   <div className="flex items-center gap-4">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">{project.name}</h1>
-                    <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 font-bold px-3 py-0.5 rounded-full text-[10px] uppercase tracking-wider">
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">{project.name}</h1>
+                    <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider">
                       Activo
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-slate-400">
-                    <div className="flex items-center gap-1.5">
-                      <UserIcon className="h-3.5 w-3.5" />
-                      <span className="text-xs font-semibold">{client?.name || 'Cargando...'}</span>
+                  <div className="flex items-center gap-6 text-slate-400">
+                    <div className="flex items-center gap-2">
+                      <UserIcon className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-slate-600">{client?.name}</span>
                     </div>
-                    <div className="h-3 w-px bg-slate-200" />
-                    <div className="flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5" />
-                      <span className="text-xs font-semibold">{client?.email}</span>
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      <span className="text-sm font-semibold text-slate-600">{client?.email}</span>
                     </div>
                   </div>
                 </div>
@@ -80,143 +85,145 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 </div>
               </div>
 
-              <TabsList className="flex-start bg-transparent border-none p-0 h-auto gap-2 -mb-5 overflow-x-auto no-scrollbar">
-                <TabsTrigger 
-                  value="overview" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-white/50"
-                >
-                  Resumen
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="roadmap" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-white/50"
-                >
-                  Roadmap ({project.milestones?.length || 0})
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="files" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-white/50"
-                >
-                  Archivos ({project.files?.length || 0})
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="quote" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-white/50"
-                >
-                  Cotización ({project.quotes?.length || 0})
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="portal" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-white/50"
-                >
-                  Portal del Cliente
-                </TabsTrigger>
-              </TabsList>
+              {/* Browser-style Tabs Header */}
+              <div className="mt-4 -mb-8">
+                <TabsList className="bg-transparent border-none p-0 h-auto gap-4 flex overflow-x-auto no-scrollbar">
+                  {[
+                    { val: 'overview', label: 'Resumen' },
+                    { val: 'roadmap', label: `Roadmap (${milestonesCount})` },
+                    { val: 'files', label: `Archivos (${filesCount})` },
+                    { val: 'quote', label: `Cotización (${quotesCount})` },
+                    { val: 'portal', label: 'Portal del Cliente' }
+                  ].map(t => (
+                    <TabsTrigger 
+                      key={t.val}
+                      value={t.val} 
+                      className="px-0 py-4 relative group data-[state=active]:text-emerald-600 text-sm font-bold text-slate-400 border-b-2 border-transparent data-[state=active]:border-emerald-600 transition-all rounded-none bg-transparent shadow-none"
+                    >
+                      {t.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
             </div>
           </header>
 
-          <div className="p-8">
-            <TabsContent value="overview" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-bottom-3 duration-500">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Project Info Card */}
+          {/* Main Content Area */}
+          <div className="flex-1 bg-slate-50/50 p-10">
+            <div className="w-full">
+              <TabsContent value="overview" className="mt-0 focus-visible:outline-none animate-in fade-in duration-500">
                 <div className="space-y-8">
-                  <Card className="border-slate-100 shadow-sm overflow-hidden group">
-                    <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <UserIcon className="h-4 w-4 text-slate-400" />
-                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Detalles del Proyecto</h3>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <div className="divide-y divide-slate-50">
-                        <div className="flex items-center justify-between p-4 px-6 hover:bg-slate-50/50 transition-colors">
-                          <span className="text-sm font-medium text-slate-500">Nombre del Proyecto</span>
-                          <span className="text-sm font-bold text-slate-900">{project.name}</span>
+                  {/* Stats Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <Card className="border-none shadow-sm bg-white overflow-hidden">
+                      <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
+                          <BarChart3 className="h-6 w-6" />
                         </div>
-                        <div className="flex items-center justify-between p-4 px-6 hover:bg-slate-50/50 transition-colors">
-                          <span className="text-sm font-medium text-slate-500">Estado</span>
-                          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 font-bold px-3">Activo</Badge>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso</p>
+                          <h4 className="text-2xl font-black text-slate-900">{progressPercent}%</h4>
                         </div>
-                        <div className="flex items-center justify-between p-4 px-6 hover:bg-slate-50/50 transition-colors">
-                          <span className="text-sm font-medium text-slate-500">Cliente</span>
-                          <div className="flex flex-col items-end">
-                            <span className="text-sm font-bold text-slate-900">{client?.name || 'Cargando...'}</span>
-                            <span className="text-[10px] text-slate-400">{client?.email}</span>
-                          </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-none shadow-sm bg-white overflow-hidden">
+                      <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-12 w-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500">
+                          <BarChart3 className="h-6 w-6" />
                         </div>
-                        <div className="flex items-center justify-between p-4 px-6 hover:bg-slate-50/50 transition-colors">
-                          <span className="text-sm font-medium text-slate-500">Fecha de inicio</span>
-                          <span className="text-sm font-semibold text-slate-600">
-                            {new Date(project.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </span>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hitos</p>
+                          <h4 className="text-2xl font-black text-slate-900">{milestonesCount}</h4>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-none shadow-sm bg-white overflow-hidden">
+                      <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-12 w-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+                          <Files className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Archivos</p>
+                          <h4 className="text-2xl font-black text-slate-900">{filesCount}</h4>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-none shadow-sm bg-white overflow-hidden">
+                      <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-12 w-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500">
+                          <Receipt className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cotizaciones</p>
+                          <h4 className="text-2xl font-black text-slate-900">{quotesCount}</h4>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                  {/* Description Card */}
-                  <Card className="border-slate-100 shadow-sm">
-                    <CardHeader className="py-4 px-6 border-b border-slate-100">
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Descripción</h3>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <p className="text-slate-600 leading-relaxed italic text-sm">
-                        {project.description || "No se ha proporcionado una descripción para este proyecto."}
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Project Details */}
+                    <Card className="lg:col-span-2 border-none shadow-sm bg-white">
+                      <CardHeader className="border-b border-slate-50 px-8 py-6">
+                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Detalles del Proyecto</h3>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="divide-y divide-slate-50">
+                          {[
+                            { label: 'Nombre del Proyecto', val: project.name },
+                            { label: 'Estado', val: 'Activo', isBadge: true },
+                            { label: 'Cliente', val: client?.name, sub: client?.email },
+                            { label: 'Fecha de inicio', val: new Date(project.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) }
+                          ].map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between px-8 py-5">
+                              <span className="text-sm font-bold text-slate-400">{item.label}</span>
+                              <div className="text-right">
+                                {item.isBadge ? (
+                                  <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold">{item.val}</Badge>
+                                ) : (
+                                  <>
+                                    <p className="text-sm font-black text-slate-900">{item.val}</p>
+                                    {item.sub && <p className="text-[10px] font-bold text-slate-400">{item.sub}</p>}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Description */}
+                    <Card className="border-none shadow-sm bg-white">
+                      <CardHeader className="border-b border-slate-50 px-8 py-6">
+                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Descripción</h3>
+                      </CardHeader>
+                      <CardContent className="p-8">
+                        <p className="text-slate-500 text-sm leading-relaxed italic">
+                          {project.description || "No se ha proporcionado una descripción para este proyecto."}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
+              </TabsContent>
 
-                {/* Content Summary Card */}
-                <div className="space-y-8">
-                  <Card className="border-slate-100 shadow-sm h-full">
-                    <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6">
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Resumen de Contenido</h3>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                      <div className="grid grid-cols-2 gap-6">
-                        <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center group hover:bg-white hover:shadow-md transition-all">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Hitos</p>
-                          <span className="text-3xl font-black text-slate-900">{project.milestones?.length || 0}</span>
-                        </div>
-                        <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center group hover:bg-white hover:shadow-md transition-all">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Archivos</p>
-                          <span className="text-3xl font-black text-slate-900">{project.files?.length || 0}</span>
-                        </div>
-                        <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center group hover:bg-white hover:shadow-md transition-all">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Cotizaciones</p>
-                          <span className="text-3xl font-black text-slate-900">{project.quotes?.length || 0}</span>
-                        </div>
-                        <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center group hover:shadow-md transition-all">
-                          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-2">Completado</p>
-                          <span className="text-3xl font-black text-emerald-600">
-                            {project.milestones && project.milestones.length > 0 
-                              ? Math.round((project.milestones.filter(m => m.status === 'done').length / project.milestones.length) * 100) 
-                              : 0}%
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </TabsContent>
+              <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
+                <RoadmapTab projectId={project.id} milestones={project.milestones || []} />
+              </TabsContent>
 
-            <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
-              <RoadmapTab projectId={project.id} milestones={project.milestones || []} />
-            </TabsContent>
+              <TabsContent value="files" className="mt-0 focus-visible:outline-none">
+                <FilesTab projectId={project.id} files={project.files || []} />
+              </TabsContent>
 
-            <TabsContent value="files" className="mt-0 focus-visible:outline-none">
-              <FilesTab projectId={project.id} files={project.files || []} />
-            </TabsContent>
+              <TabsContent value="quote" className="mt-0 focus-visible:outline-none">
+                <QuoteTab projectId={project.id} quotes={project.quotes || []} />
+              </TabsContent>
 
-            <TabsContent value="quote" className="mt-0 focus-visible:outline-none">
-              <QuoteTab projectId={project.id} quotes={project.quotes || []} />
-            </TabsContent>
-
-            <TabsContent value="portal" className="mt-0 focus-visible:outline-none">
-              <PortalSettingsTab project={project} />
-            </TabsContent>
+              <TabsContent value="portal" className="mt-0 focus-visible:outline-none">
+                <PortalSettingsTab project={project} />
+              </TabsContent>
+            </div>
           </div>
         </Tabs>
       </main>
