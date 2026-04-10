@@ -12,7 +12,7 @@ import { ChevronLeft, Mail, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import type { Client, Project } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { PortalSettingsTab } from '@/components/projects/detail/PortalSettingsTab';
 
@@ -36,7 +36,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     );
   }
 
-  const clientInfo = project.clients as unknown as Client;
   const client = project.clients as unknown as Client;
 
   return (
@@ -125,7 +124,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6">
                       <div className="flex items-center gap-2">
                         <UserIcon className="h-4 w-4 text-slate-400" />
-                        <CardTitle className="text-sm font-bold text-slate-900 uppercase tracking-widest">Detalles del Proyecto</CardTitle>
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Detalles del Proyecto</h3>
                       </div>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -158,7 +157,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                   {/* Description Card */}
                   <Card className="border-slate-100 shadow-sm">
                     <CardHeader className="py-4 px-6 border-b border-slate-100">
-                      <CardTitle className="text-sm font-bold text-slate-900 uppercase tracking-widest">Descripción</CardTitle>
+                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Descripción</h3>
                     </CardHeader>
                     <CardContent className="p-6">
                       <p className="text-slate-600 leading-relaxed italic text-sm">
@@ -172,7 +171,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 <div className="space-y-8">
                   <Card className="border-slate-100 shadow-sm h-full">
                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 py-4 px-6">
-                      <CardTitle className="text-sm font-bold text-slate-900 uppercase tracking-widest">Resumen de Contenido</CardTitle>
+                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Resumen de Contenido</h3>
                     </CardHeader>
                     <CardContent className="p-8">
                       <div className="grid grid-cols-2 gap-6">
@@ -191,7 +190,9 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                         <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100 text-center group hover:shadow-md transition-all">
                           <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-2">Completado</p>
                           <span className="text-3xl font-black text-emerald-600">
-                            {Math.round((project.milestones?.filter(m => m.status === 'done').length || 0) / (project.milestones?.length || 1) * 100)}%
+                            {project.milestones && project.milestones.length > 0 
+                              ? Math.round((project.milestones.filter(m => m.status === 'done').length / project.milestones.length) * 100) 
+                              : 0}%
                           </span>
                         </div>
                       </div>
@@ -203,16 +204,20 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
 
             <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
               <RoadmapTab projectId={project.id} milestones={project.milestones || []} />
-            </div>
-          </TabsContent>
-          <TabsContent value="quote" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="max-w-5xl mx-auto">
+            </TabsContent>
+
+            <TabsContent value="files" className="mt-0 focus-visible:outline-none">
+              <FilesTab projectId={project.id} files={project.files || []} />
+            </TabsContent>
+
+            <TabsContent value="quote" className="mt-0 focus-visible:outline-none">
               <QuoteTab projectId={project.id} quotes={project.quotes || []} />
-            </div>
-          </TabsContent>
-          <TabsContent value="portal" className="mt-0 focus-visible:outline-none animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <PortalSettingsTab project={project} />
-          </TabsContent>
+            </TabsContent>
+
+            <TabsContent value="portal" className="mt-0 focus-visible:outline-none">
+              <PortalSettingsTab project={project} />
+            </TabsContent>
+          </div>
         </Tabs>
       </main>
     </div>
