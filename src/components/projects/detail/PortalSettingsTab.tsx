@@ -58,50 +58,59 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             </CardHeader>
             <CardContent className="p-0 divide-y divide-slate-50">
               <div className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
-                <div className="space-y-1">
-                  <Label htmlFor="show-roadmap" className="text-sm font-bold text-slate-700 cursor-pointer">Mostrar Roadmap al cliente</Label>
+                <div className="space-y-1 cursor-pointer" onClick={() => {
+                  const newVal = !showRoadmap;
+                  setShowRoadmap(newVal);
+                  handleUpdate('portal_show_roadmap', newVal);
+                }}>
+                  <Label className="text-sm font-bold text-slate-700 pointer-events-none">Mostrar Roadmap al cliente</Label>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Cronograma y avances</p>
                 </div>
                 <Switch 
-                  id="show-roadmap"
                   checked={showRoadmap} 
                   onCheckedChange={(checked) => {
                     setShowRoadmap(checked);
                     handleUpdate('portal_show_roadmap', checked);
                   }} 
-                  className="data-[state=checked]:bg-blue-600"
+                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-slate-200"
                 />
               </div>
               
               <div className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
-                <div className="space-y-1">
-                  <Label htmlFor="show-files" className="text-sm font-bold text-slate-700 cursor-pointer">Mostrar Documentos al cliente</Label>
+                <div className="space-y-1 cursor-pointer" onClick={() => {
+                  const newVal = !showFiles;
+                  setShowFiles(newVal);
+                  handleUpdate('portal_show_files', newVal);
+                }}>
+                  <Label className="text-sm font-bold text-slate-700 pointer-events-none">Mostrar Documentos al cliente</Label>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Planos y archivos</p>
                 </div>
                 <Switch 
-                  id="show-files"
                   checked={showFiles} 
                   onCheckedChange={(checked) => {
                     setShowFiles(checked);
                     handleUpdate('portal_show_files', checked);
                   }} 
-                  className="data-[state=checked]:bg-blue-600"
+                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-slate-200"
                 />
               </div>
 
               <div className="flex items-center justify-between p-6 hover:bg-slate-50/50 transition-colors">
-                <div className="space-y-1">
-                  <Label htmlFor="show-quotes" className="text-sm font-bold text-slate-700 cursor-pointer">Mostrar Cotización al cliente</Label>
+                <div className="space-y-1 cursor-pointer" onClick={() => {
+                  const newVal = !showQuotes;
+                  setShowQuotes(newVal);
+                  handleUpdate('portal_show_quotes', newVal);
+                }}>
+                  <Label className="text-sm font-bold text-slate-700 pointer-events-none">Mostrar Cotización al cliente</Label>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Costos y presupuestos</p>
                 </div>
                 <Switch 
-                  id="show-quotes"
                   checked={showQuotes} 
                   onCheckedChange={(checked) => {
                     setShowQuotes(checked);
                     handleUpdate('portal_show_quotes', checked);
                   }} 
-                  className="data-[state=checked]:bg-blue-600"
+                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-slate-200"
                 />
               </div>
             </CardContent>
@@ -114,43 +123,44 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             <CardHeader className="border-b border-slate-50 pb-4">
               <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-400 uppercase tracking-widest">
                 <Shield className="h-4 w-4" />
-                Seguridad de Acceso
+                Privacidad y Acceso
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <Label htmlFor="use-pin" className="text-sm font-bold text-slate-700 cursor-pointer">Requerir PIN de acceso</Label>
+                <div className="space-y-1 cursor-pointer" onClick={() => handleTogglePin(!usePin)}>
+                  <Label className="text-sm font-bold text-slate-700 pointer-events-none">Requerir PIN de acceso</Label>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Protección extra con código de 4 dígitos</p>
                 </div>
                 <Switch 
-                  id="use-pin" 
                   checked={usePin} 
-                  onCheckedChange={handleTogglePin} 
-                  className="data-[state=checked]:bg-blue-600"
+                  onCheckedChange={handleTogglePin}
+                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-slate-200"
                 />
               </div>
 
               {usePin && (
-                <div className="space-y-3 pt-4 border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <Label htmlFor="pin" className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">PIN de 4 dígitos</Label>
-                  <div className="flex gap-4 items-center">
-                    <Input 
-                      id="pin" 
-                      placeholder="XXXX" 
-                      maxLength={4}
-                      className="h-12 w-36 text-center font-mono text-xl tracking-[0.5em] bg-slate-50 border-2 border-slate-100 focus:border-blue-600 focus:ring-0 rounded-xl transition-all"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                      onBlur={() => {
-                        if (pin.length === 4) {
-                           handleUpdate('portal_pin', pin);
-                        }
-                      }}
-                    />
-                    <p className="text-[10px] text-slate-400 leading-tight font-bold uppercase tracking-tight italic">
-                      Se guarda automáticamente<br />al completar los 4 dígitos.
-                    </p>
+                <div className="space-y-3 pt-6 border-t border-slate-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex flex-col gap-3">
+                    <Label htmlFor="pin" className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">PIN de 4 dígitos</Label>
+                    <div className="flex gap-4 items-center">
+                      <Input 
+                        id="pin" 
+                        placeholder="XXXX" 
+                        maxLength={4}
+                        className="h-12 w-36 text-center font-mono text-xl tracking-[0.5em] bg-slate-50 border-2 border-slate-100 focus:border-blue-600 focus:ring-0 rounded-xl transition-all"
+                        value={pin}
+                        onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                        onBlur={() => {
+                          if (pin.length === 4) {
+                             handleUpdate('portal_pin', pin);
+                          }
+                        }}
+                      />
+                      <p className="text-[10px] text-slate-400 leading-tight font-bold uppercase tracking-tight italic">
+                        El PIN se guarda<br />automáticamente.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -179,7 +189,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
                   onClick={() => window.open(portalLink, '_blank')}
                 >
                   <Smartphone className="h-4 w-4" />
-                  Ver como cliente
+                  Ver portal del cliente
                   <ExternalLink className="h-3 w-3 ml-1" />
                 </Button>
               </div>

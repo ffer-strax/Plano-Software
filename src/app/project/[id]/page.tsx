@@ -90,10 +90,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 <TabsList className="bg-transparent border-none p-0 h-auto gap-4 flex overflow-x-auto no-scrollbar">
                    {[
                     { val: 'overview', label: 'Resumen' },
-                    { val: 'portal', label: 'Configuración Portal' },
                     { val: 'roadmap', label: `Roadmap (${milestonesCount})` },
                     { val: 'files', label: `Archivos (${filesCount})` },
-                    { val: 'quote', label: `Cotización (${quotesCount})` }
+                    { val: 'quote', label: `Cotización (${quotesCount})` },
+                    { val: 'portal', label: 'Configuración Portal' }
                   ].map(t => (
                     <TabsTrigger 
                       key={t.val}
