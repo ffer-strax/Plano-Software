@@ -29,6 +29,13 @@ interface PortalContentProps {
   showRoadmap: boolean;
   showFiles: boolean;
   showQuotes: boolean;
+  showMilestoneDates: boolean;
+  showMilestoneNotes: boolean;
+  showMilestoneFiles: boolean;
+  showFileSize: boolean;
+  showFileDownload: boolean;
+  showQuoteBreakdown: boolean;
+  showQuoteTaxes: boolean;
 }
 
 export function PortalContent({ 
@@ -39,7 +46,12 @@ export function PortalContent({
   quotes,
   showRoadmap,
   showFiles,
-  showQuotes
+  showQuotes,
+  showMilestoneDates,
+  showMilestoneNotes,
+  showFileSize,
+  showFileDownload,
+  showQuoteBreakdown
 }: PortalContentProps) {
   const completedCount = milestones.filter(m => m.status === 'done').length;
   const progress = milestones.length > 0 ? (completedCount / milestones.length) * 100 : 0;
@@ -113,22 +125,28 @@ export function PortalContent({
     doc.text(`Fecha: ${new Date(latestQuote.created_at).toLocaleDateString('es-MX')}`, 20, 75);
     doc.text(`Estado: ${latestQuote.status === 'approved' ? 'Aprobado' : 'Pendiente'}`, 20, 80);
 
-    // Table
-    autoTable(doc, {
-      startY: 90,
-      head: [['Descripción', 'Total']],
-      body: [
-        [latestQuote.title, `${latestQuote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} ${latestQuote.currency}`]
-      ],
-      headStyles: { fillColor: [15, 23, 42], fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [248, 250, 252] },
-      margin: { left: 20, right: 20 }
-    });
+    // Table or Simple Total depending on visibility
+    if (showQuoteBreakdown) {
+      autoTable(doc, {
+        startY: 90,
+        head: [['Descripción', 'Total']],
+        body: [
+          [latestQuote.title, `${latestQuote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} ${latestQuote.currency}`]
+        ],
+        headStyles: { fillColor: [15, 23, 42], fontStyle: 'bold' },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        margin: { left: 20, right: 20 }
+      });
+    } else {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total aprobado: ${latestQuote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} ${latestQuote.currency}`, 20, 95);
+    }
 
     // Notes
     if (latestQuote.notes) {
       // @ts-expect-error - jspdf-autotable adds lastAutoTable to jsPDF instance
-      const finalY = doc.lastAutoTable.finalY + 20;
+      const finalY = showQuoteBreakdown ? doc.lastAutoTable.finalY + 20 : 115;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('Notas del Arquitecto:', 20, finalY);
@@ -274,7 +292,7 @@ export function PortalContent({
                               </h4>
                             </div>
                             
-                            {milestone.due_date && (
+                            {showMilestoneDates && milestone.due_date && (
                               <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full w-fit">
                                 <Calendar className="h-3 w-3 text-slate-400" />
                                 <span className="text-[10px] uppercase font-bold tracking-widest text-slate-600">
@@ -284,7 +302,7 @@ export function PortalContent({
                             )}
                           </div>
 
-                          {milestone.description && (
+                          {showMilestoneNotes && milestone.description && (
                             <p className="text-sm text-slate-500 leading-relaxed max-w-2xl pl-12 md:pl-14">
                               {milestone.description}
                             </p>
@@ -320,22 +338,24 @@ export function PortalContent({
                         <div className="flex flex-col min-w-0 pr-10">
                           <span className="font-bold text-slate-900 truncate leading-tight mb-1">{file.name}</span>
                           <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">
-                            {file.type?.split('/')[1] || 'Archivo'} • {formatSize(file.size)}
+                            {file.type?.split('/')[1] || 'Archivo'}{showFileSize ? ` • ${formatSize(file.size)}` : ''}
                           </span>
                         </div>
                       </div>
                       
-                      <div className="absolute top-0 right-0 p-5 mt-1">
-                        <a 
-                          href={file.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="h-9 w-9 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all md:opacity-0 md:group-hover:opacity-100 translate-x-4 group-hover:translate-x-0"
-                          title="Descargar"
-                        >
-                          <Download className="h-4 w-4" />
-                        </a>
-                      </div>
+                      {showFileDownload && (
+                        <div className="absolute top-0 right-0 p-5 mt-1">
+                          <a 
+                            href={file.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="h-9 w-9 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all md:opacity-0 md:group-hover:opacity-100 translate-x-4 group-hover:translate-x-0"
+                            title="Descargar"
+                          >
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}

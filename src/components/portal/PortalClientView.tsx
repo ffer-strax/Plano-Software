@@ -62,6 +62,13 @@ export function PortalClientView({ project }: PortalClientViewProps) {
           showRoadmap={project.portal_show_roadmap ?? true}
           showFiles={project.portal_show_files ?? true}
           showQuotes={project.portal_show_quotes ?? true}
+          showMilestoneDates={project.portal_show_milestone_dates ?? true}
+          showMilestoneNotes={project.portal_show_milestone_notes ?? true}
+          showMilestoneFiles={project.portal_show_milestone_files ?? true}
+          showFileSize={project.portal_show_file_size ?? true}
+          showFileDownload={project.portal_show_file_download ?? true}
+          showQuoteBreakdown={project.portal_show_quote_breakdown ?? true}
+          showQuoteTaxes={project.portal_show_quote_taxes ?? true}
         />
       </main>
 

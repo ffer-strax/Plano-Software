@@ -210,18 +210,20 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
     );
   };
 
-  /* ── sub-option checkbox handlers (optimistic, fire-and-forget save state not shown) ── */
-  const saveSubOption = (col: string, val: boolean) => {
-    supabase.from('projects').update({ [col]: val }).eq('id', project.id);
+  /* ── sub-option checkbox handlers (optimistic, but with save state) ── */
+  const saveSubOption = (setter: (s: SaveState) => void, col: string, val: boolean) => {
+    withSaveState(setter, async () =>
+      supabase.from('projects').update({ [col]: val }).eq('id', project.id)
+    );
   };
 
-  const handleMilestoneDates = (v: boolean) => { setShowMilestoneDates(v); saveSubOption('portal_show_milestone_dates', v); };
-  const handleMilestoneNotes = (v: boolean) => { setShowMilestoneNotes(v); saveSubOption('portal_show_milestone_notes', v); };
-  const handleMilestoneFiles = (v: boolean) => { setShowMilestoneFiles(v); saveSubOption('portal_show_milestone_files', v); };
-  const handleFileSize       = (v: boolean) => { setShowFileSize(v);       saveSubOption('portal_show_file_size', v); };
-  const handleFileDownload   = (v: boolean) => { setShowFileDownload(v);   saveSubOption('portal_show_file_download', v); };
-  const handleQuoteBreakdown = (v: boolean) => { setShowQuoteBreakdown(v); saveSubOption('portal_show_quote_breakdown', v); };
-  const handleQuoteTaxes     = (v: boolean) => { setShowQuoteTaxes(v);     saveSubOption('portal_show_quote_taxes', v); };
+  const handleMilestoneDates = (v: boolean) => { setShowMilestoneDates(v); saveSubOption(setRoadmapState, 'portal_show_milestone_dates', v); };
+  const handleMilestoneNotes = (v: boolean) => { setShowMilestoneNotes(v); saveSubOption(setRoadmapState, 'portal_show_milestone_notes', v); };
+  const handleMilestoneFiles = (v: boolean) => { setShowMilestoneFiles(v); saveSubOption(setRoadmapState, 'portal_show_milestone_files', v); };
+  const handleFileSize       = (v: boolean) => { setShowFileSize(v);       saveSubOption(setFilesState, 'portal_show_file_size', v); };
+  const handleFileDownload   = (v: boolean) => { setShowFileDownload(v);   saveSubOption(setFilesState, 'portal_show_file_download', v); };
+  const handleQuoteBreakdown = (v: boolean) => { setShowQuoteBreakdown(v); saveSubOption(setQuotesState, 'portal_show_quote_breakdown', v); };
+  const handleQuoteTaxes     = (v: boolean) => { setShowQuoteTaxes(v);     saveSubOption(setQuotesState, 'portal_show_quote_taxes', v); };
 
 
   /* ── PIN handlers ── */
