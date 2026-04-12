@@ -88,8 +88,9 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               {/* Browser-style Tabs Header */}
               <div className="mt-4 -mb-8">
                 <TabsList className="bg-transparent border-none p-0 h-auto gap-4 flex overflow-x-auto no-scrollbar">
-                  {[
-                    { val: 'overview', label: 'Configuración Portal' },
+                   {[
+                    { val: 'overview', label: 'Resumen' },
+                    { val: 'portal', label: 'Configuración Portal' },
                     { val: 'roadmap', label: `Roadmap (${milestonesCount})` },
                     { val: 'files', label: `Archivos (${filesCount})` },
                     { val: 'quote', label: `Cotización (${quotesCount})` }
@@ -111,6 +112,69 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           <div className="flex-1 bg-slate-50/50 p-10">
             <div className="w-full">
               <TabsContent value="overview" className="mt-0 focus-visible:outline-none animate-in fade-in duration-500">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Project Details */}
+                  <div className="lg:col-span-2 space-y-8">
+                    <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
+                      <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-6">Información General</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nombre</p>
+                          <p className="text-lg font-black text-slate-900">{project.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Estado</p>
+                          <Badge className="bg-blue-50 text-blue-700 border-none font-bold">Activo</Badge>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cliente</p>
+                          <p className="text-base font-bold text-slate-900">{client?.name || 'Sin cliente'}</p>
+                          <p className="text-xs text-slate-500">{client?.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Progreso</p>
+                          <p className="text-lg font-black text-slate-900">{progressPercent}%</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-8 pt-8 border-t border-slate-50">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Descripción</p>
+                        <p className="text-slate-600 text-sm leading-relaxed italic">
+                          {project.description || "No hay una descripción para este proyecto."}
+                        </p>
+                      </div>
+
+                      <div className="mt-8">
+                         <EditProjectDialog project={project} clients={clients} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats Sidebar */}
+                  <div className="space-y-6">
+                    <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                       <div className="absolute -top-10 -right-10 h-32 w-32 bg-white/5 rounded-full" />
+                       <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Resumen</h4>
+                       <div className="space-y-4">
+                         <div className="flex justify-between items-center">
+                           <span className="text-sm font-bold text-white/60">Hitos Totales</span>
+                           <span className="text-xl font-black">{milestonesCount}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                           <span className="text-sm font-bold text-white/60">Archivos</span>
+                           <span className="text-xl font-black">{filesCount}</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                           <span className="text-sm font-bold text-white/60">Cotizaciones</span>
+                           <span className="text-xl font-black">{quotesCount}</span>
+                         </div>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="portal" className="mt-0 focus-visible:outline-none animate-in fade-in duration-500">
                 <PortalSettingsTab project={project} />
               </TabsContent>
 
