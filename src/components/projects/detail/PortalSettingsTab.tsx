@@ -14,8 +14,6 @@ import {
   Shield,
   Globe,
   ExternalLink,
-  ChevronDown,
-  ChevronRight,
   RefreshCw,
   Eye,
   EyeOff,
@@ -54,102 +52,101 @@ function InlineToast({ state, label }: { state: SaveState; label: string }) {
   );
 }
 
-/* ─── visibility row (each section) ─────────────────────── */
-interface VisibilityRowProps {
+/* ─── sub-option checkbox row ───────────────────────────── */
+interface SubOptionProps {
+  label: string;
+  checked: boolean;
+  onCheckedChange: (v: boolean) => void;
+}
+
+function SubOption({ label, checked, onCheckedChange }: SubOptionProps) {
+  return (
+    <div className="flex items-center justify-between pl-9 pr-1 py-1.5">
+      <span className="text-xs text-slate-500 font-medium">{label}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onCheckedChange(e.target.checked)}
+        className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-500 cursor-pointer"
+      />
+    </div>
+  );
+}
+
+/* ─── visibility section card ────────────────────────────── */
+interface VisibilityCardProps {
   icon: React.ReactNode;
   label: string;
   sublabel: string;
-  checked: boolean;
-  disabled?: boolean;
-  onToggle: (v: boolean) => void;
-  saveState: SaveState;
-  expandable?: boolean;
-  expandedContent?: React.ReactNode;
+  mainChecked: boolean;
+  onMainToggle: (v: boolean) => void;
+  mainSaveState: SaveState;
+  subOptions: SubOptionProps[];
 }
 
-function VisibilityRow({
+function VisibilityCard({
   icon,
   label,
   sublabel,
-  checked,
-  disabled = false,
-  onToggle,
-  saveState,
-  expandable = false,
-  expandedContent,
-}: VisibilityRowProps) {
-  const [expanded, setExpanded] = useState(false);
-
+  mainChecked,
+  onMainToggle,
+  mainSaveState,
+  subOptions,
+}: VisibilityCardProps) {
   return (
-    <div className="flex flex-col">
-      <div
-        className="flex items-center min-h-[56px] px-8 py-4 gap-4 hover:bg-slate-50/60 transition-all group"
-        role="row"
-      >
-        {/* expand chevron */}
-        {expandable ? (
-          <button
-            type="button"
-            onClick={() => setExpanded((p) => !p)}
-            className="shrink-0 text-slate-300 hover:text-slate-500 transition-colors"
-            aria-label="Expandir sección"
-          >
-            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </button>
-        ) : (
-          <span className="w-4 shrink-0" />
-        )}
-
-        {/* icon */}
-        <div className="p-2 bg-slate-50 rounded-xl group-hover:bg-white transition-colors shrink-0">
-          {icon}
+    <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+      {/* Main toggle row */}
+      <div className="flex items-center justify-between px-5 py-4 min-h-[60px]">
+        <div className="flex items-center gap-3">
+          <div className="shrink-0 text-slate-500">{icon}</div>
+          <div>
+            <p className="text-sm font-black text-slate-900">{label}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{sublabel}</p>
+          </div>
         </div>
-
-        {/* label */}
-        <div
-          className="flex-1 cursor-pointer select-none"
-          onClick={() => !disabled && onToggle(!checked)}
-        >
-          <p className="text-sm font-black text-slate-900">{label}</p>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{sublabel}</p>
-        </div>
-
-        {/* status + switch */}
-        <div className="flex items-center gap-3 shrink-0">
-          <InlineToast state={saveState} label={label} />
+        <div className="flex items-center gap-2 shrink-0">
+          <InlineToast state={mainSaveState} label={label} />
           <Switch
-            checked={checked}
-            onCheckedChange={onToggle}
-            disabled={disabled}
+            checked={mainChecked}
+            onCheckedChange={onMainToggle}
           />
         </div>
       </div>
 
-      {/* expandable panel */}
-      {expandable && expanded && expandedContent && (
-        <div className="px-8 pb-6 bg-slate-50/40 border-t border-slate-50 animate-in slide-in-from-top-2 duration-200">
-          <div className="mt-4 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-3">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <Shield className="h-3 w-3" />
-              Control Granular
-              <span className="ml-1 text-slate-300 normal-case font-medium">— próximamente por elemento individual</span>
-            </p>
-            {expandedContent}
-          </div>
+      {/* Sub-options — hidden when main is OFF */}
+      {mainChecked && (
+        <div className="px-4 pb-4 pt-1 space-y-1 border-t border-slate-50 animate-in fade-in duration-150">
+          {subOptions.map((opt) => (
+            <SubOption key={opt.label} {...opt} />
+          ))}
         </div>
       )}
     </div>
   );
 }
 
+
 /* ─── main component ─────────────────────────────────────── */
 export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
   const supabase = createClient();
 
-  /* visibility state */
+  /* visibility: main toggles */
   const [showRoadmap, setShowRoadmap] = useState(project.portal_show_roadmap ?? true);
   const [showFiles, setShowFiles] = useState(project.portal_show_files ?? true);
   const [showQuotes, setShowQuotes] = useState(project.portal_show_quotes ?? true);
+
+  /* visibility: roadmap sub-options */
+  const [showMilestoneDates, setShowMilestoneDates] = useState(project.portal_show_milestone_dates ?? true);
+  const [showMilestoneNotes, setShowMilestoneNotes] = useState(project.portal_show_milestone_notes ?? true);
+  const [showMilestoneFiles, setShowMilestoneFiles] = useState(project.portal_show_milestone_files ?? true);
+
+  /* visibility: files sub-options */
+  const [showFileSize, setShowFileSize] = useState(project.portal_show_file_size ?? true);
+  const [showFileDownload, setShowFileDownload] = useState(project.portal_show_file_download ?? true);
+
+  /* visibility: quotes sub-options */
+  const [showQuoteBreakdown, setShowQuoteBreakdown] = useState(project.portal_show_quote_breakdown ?? true);
+  const [showQuoteTaxes, setShowQuoteTaxes] = useState(project.portal_show_quote_taxes ?? true);
 
   /* save states */
   const [roadmapState, setRoadmapState] = useState<SaveState>('idle');
@@ -191,7 +188,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
     []
   );
 
-  /* ── toggle handlers ── */
+  /* ── main toggle handlers ── */
   const handleRoadmapToggle = (checked: boolean) => {
     setShowRoadmap(checked);
     withSaveState(setRoadmapState, async () =>
@@ -212,6 +209,20 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
       supabase.from('projects').update({ portal_show_quotes: checked }).eq('id', project.id)
     );
   };
+
+  /* ── sub-option checkbox handlers (optimistic, fire-and-forget save state not shown) ── */
+  const saveSubOption = (col: string, val: boolean) => {
+    supabase.from('projects').update({ [col]: val }).eq('id', project.id);
+  };
+
+  const handleMilestoneDates = (v: boolean) => { setShowMilestoneDates(v); saveSubOption('portal_show_milestone_dates', v); };
+  const handleMilestoneNotes = (v: boolean) => { setShowMilestoneNotes(v); saveSubOption('portal_show_milestone_notes', v); };
+  const handleMilestoneFiles = (v: boolean) => { setShowMilestoneFiles(v); saveSubOption('portal_show_milestone_files', v); };
+  const handleFileSize       = (v: boolean) => { setShowFileSize(v);       saveSubOption('portal_show_file_size', v); };
+  const handleFileDownload   = (v: boolean) => { setShowFileDownload(v);   saveSubOption('portal_show_file_download', v); };
+  const handleQuoteBreakdown = (v: boolean) => { setShowQuoteBreakdown(v); saveSubOption('portal_show_quote_breakdown', v); };
+  const handleQuoteTaxes     = (v: boolean) => { setShowQuoteTaxes(v);     saveSubOption('portal_show_quote_taxes', v); };
+
 
   /* ── PIN handlers ── */
   const handlePinToggle = async (checked: boolean) => {
@@ -256,63 +267,61 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* ── Left column: Visibility ── */}
-        <div className="space-y-6">
-          <Card className="border-none shadow-sm bg-white overflow-hidden rounded-3xl">
-            <CardHeader className="border-b border-slate-50 pb-4 px-8 pt-8">
-              <CardTitle className="text-[10px] font-black flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
-                <Globe className="h-4 w-4" />
-                Visibilidad de Secciones
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 divide-y divide-slate-50">
-              <VisibilityRow
-                icon={<Calendar className="h-5 w-5 text-slate-400" />}
-                label="Mostrar Hitos"
-                sublabel="Cronograma y avances del proyecto"
-                checked={showRoadmap}
-                onToggle={handleRoadmapToggle}
-                saveState={roadmapState}
-                expandable
-                expandedContent={
-                  <>
-                    <GranularItem label="Ver fechas de entrega" />
-                    <GranularItem label="Ver notas de hito" />
-                    <GranularItem label="Ver archivos vinculados al hito" />
-                  </>
-                }
-              />
-              <VisibilityRow
-                icon={<FileText className="h-5 w-5 text-slate-400" />}
-                label="Mostrar Archivos"
-                sublabel="Planos, imágenes y documentos"
-                checked={showFiles}
-                onToggle={handleFilesToggle}
-                saveState={filesState}
-                expandable
-                expandedContent={
-                  <>
-                    <GranularItem label="Ver tamaño de archivo" />
-                    <GranularItem label="Permitir descarga directa" />
-                  </>
-                }
-              />
-              <VisibilityRow
-                icon={<DollarSign className="h-5 w-5 text-slate-400" />}
-                label="Mostrar Cotizaciones"
-                sublabel="Presupuestos y costos aprobados"
-                checked={showQuotes}
-                onToggle={handleQuotesToggle}
-                saveState={quotesState}
-                expandable
-                expandedContent={
-                  <>
-                    <GranularItem label="Ver desglose de ítems" />
-                    <GranularItem label="Ver estado de pago" />
-                  </>
-                }
-              />
-            </CardContent>
-          </Card>
+        <div className="space-y-4">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Control de Visibilidad</p>
+
+          <VisibilityCard
+            icon={<Calendar className="h-5 w-5" />}
+            label="Mostrar Hitos"
+            sublabel="Cronograma y avances"
+            mainChecked={showRoadmap}
+            onMainToggle={handleRoadmapToggle}
+            mainSaveState={roadmapState}
+            subOptions={[
+              { label: 'Ver fechas de entrega',    checked: showMilestoneDates, onCheckedChange: handleMilestoneDates },
+              { label: 'Ver notas de hito',        checked: showMilestoneNotes, onCheckedChange: handleMilestoneNotes },
+              { label: 'Ver archivos vinculados',  checked: showMilestoneFiles, onCheckedChange: handleMilestoneFiles },
+            ]}
+          />
+
+          <VisibilityCard
+            icon={<FileText className="h-5 w-5" />}
+            label="Mostrar Archivos"
+            sublabel="Planos, imágenes y documentos"
+            mainChecked={showFiles}
+            onMainToggle={handleFilesToggle}
+            mainSaveState={filesState}
+            subOptions={[
+              { label: 'Ver tamaño de archivo',   checked: showFileSize,     onCheckedChange: handleFileSize },
+              { label: 'Permitir descarga directa', checked: showFileDownload, onCheckedChange: handleFileDownload },
+            ]}
+          />
+
+          <VisibilityCard
+            icon={<DollarSign className="h-5 w-5" />}
+            label="Mostrar Cotizaciones"
+            sublabel="Presupuestos y costos"
+            mainChecked={showQuotes}
+            onMainToggle={handleQuotesToggle}
+            mainSaveState={quotesState}
+            subOptions={[
+              { label: 'Ver desglose de costos', checked: showQuoteBreakdown, onCheckedChange: handleQuoteBreakdown },
+              { label: 'Ver impuestos',          checked: showQuoteTaxes,     onCheckedChange: handleQuoteTaxes },
+            ]}
+          />
+
+          {/* Automated-sync info card */}
+          <div className="relative overflow-hidden bg-slate-900 text-white rounded-2xl p-6">
+            <div className="relative z-10">
+              <h4 className="text-sm font-black mb-1">Cambios Instantáneos</h4>
+              <p className="text-xs text-white/70 leading-relaxed">
+                Los cambios de visibilidad se aplican de inmediato a todas las sesiones activas del cliente.
+              </p>
+            </div>
+            <div className="absolute -right-4 -bottom-4 opacity-10">
+              <RefreshCw className="h-20 w-20" />
+            </div>
+          </div>
         </div>
 
         {/* ── Right column: Security + Link ── */}
@@ -476,12 +485,3 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
   );
 }
 
-/* ─── small helper: placeholder granular item ─────────────── */
-function GranularItem({ label }: { label: string }) {
-  return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-      <span className="text-xs font-bold text-slate-600">{label}</span>
-      <Switch size="sm" checked disabled />
-    </div>
-  );
-}

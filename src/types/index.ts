@@ -49,6 +49,13 @@ export interface Project {
   portal_show_roadmap?: boolean;
   portal_show_files?: boolean;
   portal_show_quotes?: boolean;
+  portal_show_milestone_dates?: boolean;
+  portal_show_milestone_notes?: boolean;
+  portal_show_milestone_files?: boolean;
+  portal_show_file_size?: boolean;
+  portal_show_file_download?: boolean;
+  portal_show_quote_breakdown?: boolean;
+  portal_show_quote_taxes?: boolean;
   clients?: Client;
   files?: ProjectFile[];
   milestones?: Milestone[];
