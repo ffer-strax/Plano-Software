@@ -9,8 +9,7 @@ export function CopyPortalLink({ link }: { link: string }) {
 
   const handleCopy = async () => {
     try {
-      const fullLink = typeof window !== 'undefined' ? `${window.location.origin}${link}` : link;
-      await navigator.clipboard.writeText(fullLink);
+      await navigator.clipboard.writeText(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {

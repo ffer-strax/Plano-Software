@@ -45,13 +45,11 @@ export function PortalClientView({ project }: PortalClientViewProps) {
     );
   }
 
-  const architectName = (project.users as unknown as { full_name: string })?.full_name || 'Tu Arquitecto';
 
   return (
     <div className="min-h-screen bg-slate-50 animate-in fade-in duration-700">
       <PortalHeader 
         projectName={project.name} 
-        architectName={architectName} 
       />
 
       <main>
@@ -61,6 +59,9 @@ export function PortalClientView({ project }: PortalClientViewProps) {
           files={project.files || []}
           milestones={project.milestones || []}
           quotes={project.quotes || []}
+          showRoadmap={project.portal_show_roadmap ?? true}
+          showFiles={project.portal_show_files ?? true}
+          showQuotes={project.portal_show_quotes ?? true}
         />
       </main>
 

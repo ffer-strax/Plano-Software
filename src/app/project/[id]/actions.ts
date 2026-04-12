@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import type { Milestone, ProjectFile, QuoteItem, QuoteColumn, MilestoneNote } from '@/types';
+import type { Milestone, ProjectFile, QuoteItem, QuoteColumn, MilestoneNote, Project } from '@/types';
 
 export async function getProjectDetail(id: string) {
   const supabase = createClient();
@@ -408,6 +408,20 @@ export async function deleteMilestoneNote(noteId: string, projectId: string) {
     .from('milestone_notes')
     .delete()
     .eq('id', noteId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function updatePortalSettings(projectId: string, settings: Partial<Project>) {
+  const supabase = createClient();
+  
+  const { error } = await supabase
+    .from('projects')
+    .update(settings)
+    .eq('id', projectId);
 
   if (error) return { error: error.message };
 

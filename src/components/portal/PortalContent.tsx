@@ -26,9 +26,21 @@ interface PortalContentProps {
   files: ProjectFile[];
   milestones: Milestone[];
   quotes: Quote[];
+  showRoadmap: boolean;
+  showFiles: boolean;
+  showQuotes: boolean;
 }
 
-export function PortalContent({ projectName, projectStatus, files, milestones, quotes }: PortalContentProps) {
+export function PortalContent({ 
+  projectName, 
+  projectStatus, 
+  files, 
+  milestones, 
+  quotes,
+  showRoadmap,
+  showFiles,
+  showQuotes
+}: PortalContentProps) {
   const completedCount = milestones.filter(m => m.status === 'done').length;
   const progress = milestones.length > 0 ? (completedCount / milestones.length) * 100 : 0;
   
@@ -137,36 +149,47 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
     doc.save(`cotizacion_${latestQuote.title.toLowerCase().replace(/\s+/g, '_')}.pdf`);
   };
 
+  const visibleTabs = [
+    { id: 'roadmap', label: 'Avance', visible: showRoadmap },
+    { id: 'files', label: 'Documentos', visible: showFiles },
+    { id: 'quote', label: 'Presupuesto', visible: showQuotes && latestQuote !== undefined }
+  ].filter(t => t.visible);
+
+  if (visibleTabs.length === 0) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-20 text-center">
+        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 mb-6">
+          <Calendar className="h-10 w-10 text-slate-200" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Portal en preparación</h2>
+        <p className="text-slate-500 max-w-sm mx-auto font-medium">
+          Tu arquitecto actualizará este portal próximamente.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 md:py-12">
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Left Side: Navigation Tabs */}
         <div className="flex-1 space-y-8 md:space-y-10">
-          <Tabs defaultValue="roadmap" className="w-full">
-            <div className="flex justify-start border-b border-slate-200 mb-8 overflow-x-auto">
-              <TabsList className="bg-transparent border-none p-0 h-auto gap-1">
-                <TabsTrigger 
-                  value="roadmap" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
-                >
-                  Avance
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="files" 
-                  className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
-                >
-                  Documentos
-                </TabsTrigger>
-                {latestQuote && (
-                  <TabsTrigger 
-                    value="quote" 
-                    className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
-                  >
-                    Presupuesto
-                  </TabsTrigger>
-                )}
-              </TabsList>
-            </div>
+          <Tabs defaultValue={visibleTabs[0].id} className="w-full">
+            {visibleTabs.length > 1 && (
+              <div className="flex justify-start border-b border-slate-200 mb-8 overflow-x-auto">
+                <TabsList className="bg-transparent border-none p-0 h-auto gap-1">
+                  {visibleTabs.map(tab => (
+                    <TabsTrigger 
+                      key={tab.id}
+                      value={tab.id} 
+                      className="rounded-t-xl border-x border-t border-transparent data-[state=active]:border-slate-200 data-[state=active]:bg-white data-[state=active]:text-slate-900 px-8 py-3 -mb-px text-sm font-bold text-slate-500 transition-all hover:bg-slate-100/50"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+            )}
 
             {/* ROADMAP CONTENT */}
             <TabsContent value="roadmap" className="space-y-8 focus-visible:outline-none animate-in fade-in slide-in-from-bottom-4 duration-500">

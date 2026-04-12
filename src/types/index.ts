@@ -46,6 +46,9 @@ export interface Project {
   portal_pin?: string;
   created_at: string;
   updated_at: string;
+  portal_show_roadmap?: boolean;
+  portal_show_files?: boolean;
+  portal_show_quotes?: boolean;
   clients?: Client;
   files?: ProjectFile[];
   milestones?: Milestone[];

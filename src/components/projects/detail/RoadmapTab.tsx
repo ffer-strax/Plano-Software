@@ -29,6 +29,7 @@ import {
   Loader2, 
   Plus, 
   Trash2, 
+  Pencil,
   Milestone as MilestoneIcon, 
   ChevronDown, 
   ChevronUp, 
@@ -281,7 +282,7 @@ export function RoadmapTab({ projectId, milestones, files = [], quotes = [] }: R
                         className="h-10 w-10 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-xl" 
                         onClick={() => setEditingMilestone(milestone)}
                       >
-                        <Plus className="h-5 w-5" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                       <Button 
                         variant="ghost" 

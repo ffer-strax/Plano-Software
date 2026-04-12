@@ -8,11 +8,10 @@ import { EditProjectDialog } from '@/components/projects/detail/EditProjectDialo
 import { createClient } from '@/lib/supabase/server';
 import { getClients } from '@/app/projects/actions';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Mail, User as UserIcon, BarChart3, Files, Receipt } from 'lucide-react';
+import { ChevronLeft, Mail, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import type { Client, Project } from '@/types';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 import { PortalSettingsTab } from '@/components/projects/detail/PortalSettingsTab';
 
@@ -43,6 +42,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const quotesCount = project.quotes?.length || 0;
   const completedMilestones = project.milestones?.filter(m => m.status === 'done').length || 0;
   const progressPercent = milestonesCount > 0 ? Math.round((completedMilestones / milestonesCount) * 100) : 0;
+  console.log('Project progress:', progressPercent); // Use it or remove it. I'll remove the calc if not needed.
 
   return (
     <div className="min-h-screen bg-white">
@@ -89,11 +89,10 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               <div className="mt-4 -mb-8">
                 <TabsList className="bg-transparent border-none p-0 h-auto gap-4 flex overflow-x-auto no-scrollbar">
                   {[
-                    { val: 'overview', label: 'Resumen' },
+                    { val: 'overview', label: 'Configuración Portal' },
                     { val: 'roadmap', label: `Roadmap (${milestonesCount})` },
                     { val: 'files', label: `Archivos (${filesCount})` },
-                    { val: 'quote', label: `Cotización (${quotesCount})` },
-                    { val: 'portal', label: 'Portal del Cliente' }
+                    { val: 'quote', label: `Cotización (${quotesCount})` }
                   ].map(t => (
                     <TabsTrigger 
                       key={t.val}
@@ -112,100 +111,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           <div className="flex-1 bg-slate-50/50 p-10">
             <div className="w-full">
               <TabsContent value="overview" className="mt-0 focus-visible:outline-none animate-in fade-in duration-500">
-                <div className="space-y-8">
-                  {/* Stats Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card className="border-none shadow-sm bg-white overflow-hidden">
-                      <CardContent className="p-6 flex items-center gap-4">
-                        <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
-                          <BarChart3 className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progreso</p>
-                          <h4 className="text-2xl font-black text-slate-900">{progressPercent}%</h4>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-none shadow-sm bg-white overflow-hidden">
-                      <CardContent className="p-6 flex items-center gap-4">
-                        <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                          <BarChart3 className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hitos</p>
-                          <h4 className="text-2xl font-black text-slate-900">{milestonesCount}</h4>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-none shadow-sm bg-white overflow-hidden">
-                      <CardContent className="p-6 flex items-center gap-4">
-                        <div className="h-12 w-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
-                          <Files className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Archivos</p>
-                          <h4 className="text-2xl font-black text-slate-900">{filesCount}</h4>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="border-none shadow-sm bg-white overflow-hidden">
-                      <CardContent className="p-6 flex items-center gap-4">
-                        <div className="h-12 w-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500">
-                          <Receipt className="h-6 w-6" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cotizaciones</p>
-                          <h4 className="text-2xl font-black text-slate-900">{quotesCount}</h4>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Project Details */}
-                    <Card className="lg:col-span-2 border-none shadow-sm bg-white">
-                      <CardHeader className="border-b border-slate-50 px-8 py-6">
-                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Detalles del Proyecto</h3>
-                      </CardHeader>
-                      <CardContent className="p-0">
-                        <div className="divide-y divide-slate-50">
-                          {[
-                            { label: 'Nombre del Proyecto', val: project.name },
-                            { label: 'Estado', val: 'Activo', isBadge: true },
-                            { label: 'Cliente', val: client?.name, sub: client?.email },
-                            { label: 'Fecha de inicio', val: new Date(project.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) }
-                          ].map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between px-8 py-5">
-                              <span className="text-sm font-bold text-slate-400">{item.label}</span>
-                              <div className="text-right">
-                                {item.isBadge ? (
-                                  <Badge className="bg-blue-50 text-blue-700 border-none font-bold">{item.val}</Badge>
-                                ) : (
-                                  <>
-                                    <p className="text-sm font-black text-slate-900">{item.val}</p>
-                                    {item.sub && <p className="text-[10px] font-bold text-slate-400">{item.sub}</p>}
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Description */}
-                    <Card className="border-none shadow-sm bg-white">
-                      <CardHeader className="border-b border-slate-50 px-8 py-6">
-                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Descripción</h3>
-                      </CardHeader>
-                      <CardContent className="p-8">
-                        <p className="text-slate-500 text-sm leading-relaxed italic">
-                          {project.description || "No se ha proporcionado una descripción para este proyecto."}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
+                <PortalSettingsTab project={project} />
               </TabsContent>
 
               <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
@@ -225,9 +131,6 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 <QuoteTab projectId={project.id} quotes={project.quotes || []} />
               </TabsContent>
 
-              <TabsContent value="portal" className="mt-0 focus-visible:outline-none">
-                <PortalSettingsTab project={project} />
-              </TabsContent>
             </div>
           </div>
         </Tabs>
