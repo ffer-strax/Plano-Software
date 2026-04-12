@@ -57,14 +57,14 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 <div className="space-y-2">
                   <Link 
                     href="/dashboard" 
-                    className="group flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-emerald-600 transition-colors"
+                    className="group flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] hover:text-blue-700 transition-colors"
                   >
                     <ChevronLeft className="h-3 w-3 mr-1" />
                     Volver al Dashboard
                   </Link>
                   <div className="flex items-center gap-4">
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight">{project.name}</h1>
-                    <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider">
+                    <Badge className="bg-blue-50 text-blue-700 border-none font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider">
                       Activo
                     </Badge>
                   </div>
@@ -98,7 +98,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                     <TabsTrigger 
                       key={t.val}
                       value={t.val} 
-                      className="px-0 py-4 relative group data-[state=active]:text-emerald-600 text-sm font-bold text-slate-400 border-b-2 border-transparent data-[state=active]:border-emerald-600 transition-all rounded-none bg-transparent shadow-none"
+                      className="px-0 py-4 relative group data-[state=active]:text-blue-700 text-sm font-bold text-slate-400 border-b-2 border-transparent data-[state=active]:border-blue-700 transition-all rounded-none bg-transparent shadow-none"
                     >
                       {t.label}
                     </TabsTrigger>
@@ -128,7 +128,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                     </Card>
                     <Card className="border-none shadow-sm bg-white overflow-hidden">
                       <CardContent className="p-6 flex items-center gap-4">
-                        <div className="h-12 w-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500">
+                        <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
                           <BarChart3 className="h-6 w-6" />
                         </div>
                         <div>
@@ -179,7 +179,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                               <span className="text-sm font-bold text-slate-400">{item.label}</span>
                               <div className="text-right">
                                 {item.isBadge ? (
-                                  <Badge className="bg-emerald-50 text-emerald-600 border-none font-bold">{item.val}</Badge>
+                                  <Badge className="bg-blue-50 text-blue-700 border-none font-bold">{item.val}</Badge>
                                 ) : (
                                   <>
                                     <p className="text-sm font-black text-slate-900">{item.val}</p>
@@ -209,7 +209,12 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
               </TabsContent>
 
               <TabsContent value="roadmap" className="mt-0 focus-visible:outline-none">
-                <RoadmapTab projectId={project.id} milestones={project.milestones || []} />
+                <RoadmapTab 
+                  projectId={project.id} 
+                  milestones={project.milestones || []} 
+                  files={project.files || []}
+                  quotes={project.quotes || []}
+                />
               </TabsContent>
 
               <TabsContent value="files" className="mt-0 focus-visible:outline-none">

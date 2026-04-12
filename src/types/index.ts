@@ -61,6 +61,7 @@ export interface ProjectFile {
   url: string;
   size?: number;
   type?: string;
+  milestone_id?: string;
   uploaded_at: string;
 }
 
@@ -72,7 +73,16 @@ export interface Milestone {
   status: MilestoneStatus;
   due_date?: string;
   order_index: number;
+  notes?: MilestoneNote[];
   created_at: string;
+}
+
+export interface MilestoneNote {
+  id: string;
+  milestone_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Quote {
@@ -83,6 +93,7 @@ export interface Quote {
   currency: string;
   status: QuoteStatus;
   notes?: string;
+  milestone_id?: string;
   items?: QuoteItem[];
   columns?: QuoteColumn[];
   created_at: string;

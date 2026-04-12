@@ -20,8 +20,8 @@ export function CopyPortalLink({ link }: { link: string }) {
 
   return (
     <Button variant="outline" onClick={handleCopy} className="border-slate-200 bg-white hover:bg-slate-50">
-      {copied ? <Check className="mr-2 h-4 w-4 text-emerald-500" /> : <Link2 className="mr-2 h-4 w-4 text-slate-500" />}
-      {copied ? <span className="text-emerald-600 font-medium">¡Copiado!</span> : <span>Copiar Link</span>}
+      {copied ? <Check className="mr-2 h-4 w-4 text-blue-600" /> : <Link2 className="mr-2 h-4 w-4 text-slate-500" />}
+      {copied ? <span className="text-blue-700 font-medium">¡Copiado!</span> : <span>Copiar Link</span>}
     </Button>
   );
 }

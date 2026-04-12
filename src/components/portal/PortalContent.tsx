@@ -48,7 +48,7 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
 
   function getStatusIcon(status: string) {
     switch (status) {
-      case 'done': return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+      case 'done': return <CheckCircle2 className="h-4 w-4 text-blue-600" />;
       case 'in_progress': return <PlayCircle className="h-4 w-4 text-blue-500" />;
       default: return <Clock className="h-4 w-4 text-slate-300" />;
     }
@@ -193,9 +193,9 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Etapas</p>
                     <p className="text-lg font-bold text-slate-900">{milestones.length}</p>
                   </div>
-                  <div className="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl">
-                    <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mb-1">Listas</p>
-                    <p className="text-lg font-bold text-emerald-700">{completedCount}</p>
+                  <div className="bg-blue-50 border border-blue-100 p-3 rounded-2xl">
+                    <p className="text-[9px] font-bold text-blue-700 uppercase tracking-widest mb-1">Listas</p>
+                    <p className="text-lg font-bold text-blue-700">{completedCount}</p>
                   </div>
                   <div className="bg-blue-50 border border-blue-100 p-3 rounded-2xl">
                     <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest mb-1">En curso</p>
@@ -226,7 +226,7 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
                       <div key={milestone.id} className="relative pb-10 last:pb-0 group">
                         {/* Milestone dot indicator */}
                         <div className={`absolute -left-[27px] md:-left-[27px] top-1.5 h-4 w-4 md:h-5 md:w-5 rounded-full border-4 border-white shadow-sm z-10 transition-all duration-300 ${
-                          isDone ? 'bg-emerald-500 scale-100' : isInProgress ? 'bg-blue-500 animate-pulse scale-110' : 'bg-slate-200 group-hover:bg-slate-300'
+                          isDone ? 'bg-blue-600 scale-100' : isInProgress ? 'bg-blue-500 animate-pulse scale-110' : 'bg-slate-200 group-hover:bg-slate-300'
                         }`} />
 
                         <div className={`rounded-2xl border transition-all duration-300 p-5 md:p-6 shadow-sm ${
@@ -239,7 +239,7 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
                             <div className="flex items-center gap-3">
                               <div className={`shrink-0 p-2 rounded-xl ${
-                                isDone ? 'bg-emerald-100 text-emerald-600' : 
+                                isDone ? 'bg-blue-100 text-blue-700' : 
                                 isInProgress ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'
                               }`}>
                                 {getStatusIcon(milestone.status)}
@@ -360,7 +360,7 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
 
                     <div className="pt-6 border-t border-slate-100 flex flex-col md:flex-row gap-6 md:items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                        <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-700">
                           <CheckCircle2 className="h-6 w-6" />
                         </div>
                         <div>
@@ -407,7 +407,7 @@ export function PortalContent({ projectName, projectStatus, files, milestones, q
                 
                 <div className="pt-4 flex flex-col gap-2">
                   <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-tight">
-                    <div className="h-1 w-1 bg-emerald-500 rounded-full" />
+                    <div className="h-1 w-1 bg-blue-600 rounded-full" />
                     Actualizado hoy
                   </div>
                 </div>

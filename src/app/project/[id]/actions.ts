@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import type { Milestone, ProjectFile, QuoteItem, QuoteColumn } from '@/types';
+import type { Milestone, ProjectFile, QuoteItem, QuoteColumn, MilestoneNote } from '@/types';
 
 export async function getProjectDetail(id: string) {
   const supabase = createClient();
@@ -63,6 +63,7 @@ export async function uploadProjectFile(formData: FormData) {
     .getPublicUrl(filePath);
 
   // 3. Register in Database
+  const milestoneId = formData.get('milestoneId') as string;
   const { error: dbError } = await supabase
     .from('files')
     .insert([
@@ -72,6 +73,7 @@ export async function uploadProjectFile(formData: FormData) {
         url: publicUrl,
         size: file.size,
         type: file.type,
+        milestone_id: milestoneId || null,
       },
     ]);
 
@@ -235,9 +237,19 @@ export async function createQuote(formData: FormData) {
   const currency = (formData.get('currency') as string) || 'MXN';
   const notes = formData.get('notes') as string;
 
+  const milestoneId = formData.get('milestoneId') as string;
+
   const { error } = await supabase
     .from('quotes')
-    .insert([{ project_id: projectId, title, total, currency, status: 'draft', notes }]);
+    .insert([{ 
+      project_id: projectId, 
+      title, 
+      total, 
+      currency, 
+      status: 'draft', 
+      notes,
+      milestone_id: milestoneId || null 
+    }]);
 
   if (error) return { error: error.message };
 
@@ -358,3 +370,48 @@ export async function deleteTimeLog(logId: string, projectId: string) {
   revalidatePath(`/project/${projectId}`);
   return { success: true };
 }
+
+export async function getMilestoneNotes(milestoneId: string) {
+  const supabase = createClient();
+  
+  const { data, error } = await supabase
+    .from('milestone_notes')
+    .select('*')
+    .eq('milestone_id', milestoneId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching milestone notes:', error);
+    return [];
+  }
+
+  return data as MilestoneNote[];
+}
+
+export async function createMilestoneNote(milestoneId: string, content: string, projectId: string) {
+  const supabase = createClient();
+  
+  const { error } = await supabase
+    .from('milestone_notes')
+    .insert([{ milestone_id: milestoneId, content }]);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function deleteMilestoneNote(noteId: string, projectId: string) {
+  const supabase = createClient();
+  
+  const { error } = await supabase
+    .from('milestone_notes')
+    .delete()
+    .eq('id', noteId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+

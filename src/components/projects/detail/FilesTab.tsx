@@ -137,8 +137,8 @@ export function FilesTab({ projectId, files }: FilesTabProps) {
 
 function FileRow({ file, isDeleting, onDelete, formatSize }: { file: ProjectFile, isDeleting: boolean, onDelete: () => void, formatSize: (n?: number) => string }) {
   return (
-    <div className="flex items-center gap-6 bg-white p-6 rounded-3xl border border-slate-100 hover:border-emerald-100 hover:shadow-xl transition-all group">
-      <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+    <div className="flex items-center gap-6 bg-white p-6 rounded-3xl border border-slate-100 hover:border-blue-100 hover:shadow-xl transition-all group">
+      <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
         <FileText className="h-7 w-7" />
       </div>
       <div className="flex-1 min-w-0 space-y-1">
@@ -165,7 +165,7 @@ function FileRow({ file, isDeleting, onDelete, formatSize }: { file: ProjectFile
             href={file.url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all font-bold"
+            className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-xl text-slate-400 hover:text-blue-700 hover:bg-blue-50 transition-all font-bold"
             >
             <Download className="h-5 w-5" />
             </a>

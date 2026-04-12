@@ -51,7 +51,7 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
   return (
     <div className="fixed left-0 top-0 h-full w-52 bg-slate-900 text-white flex flex-col p-4 z-50">
       <div className="mb-10 px-2 flex items-center gap-2">
-        <div className="bg-emerald-500 p-1.5 rounded-lg">
+        <div className="bg-blue-600 p-1.5 rounded-lg">
           <Link href="/dashboard" className="text-xl font-bold tracking-tight text-white italic">
             Plano
           </Link>

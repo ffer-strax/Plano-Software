@@ -17,7 +17,7 @@ export function DashboardSearch() {
       )}>
         <Input
           placeholder="Buscar..."
-          className="h-9 text-sm focus-visible:ring-emerald-500"
+          className="h-9 text-sm focus-visible:ring-blue-600"
           autoFocus={isExpanded}
         />
       </div>

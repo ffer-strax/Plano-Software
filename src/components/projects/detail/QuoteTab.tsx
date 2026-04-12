@@ -201,7 +201,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
 
   function getStatusStyle(status: string) {
     switch(status) {
-      case 'approved': return 'bg-emerald-50 text-emerald-700';
+      case 'approved': return 'bg-blue-50 text-blue-700';
       case 'sent': return 'bg-blue-50 text-blue-700';
       default: return 'bg-slate-100 text-slate-500';
     }
@@ -251,7 +251,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
             <Button 
               onClick={handleSaveItems}
               disabled={isSaving}
-              className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 shadow-lg shadow-emerald-100"
+              className="h-12 px-8 rounded-2xl bg-blue-700 hover:bg-blue-800 text-white font-bold flex items-center gap-2 shadow-lg shadow-blue-100"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Guardar Cambios
@@ -297,7 +297,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                           type={col.type === 'number' ? 'number' : 'text'}
                           value={item[col.id]} 
                           onChange={(e) => handleUpdateItem(item.id, col.id, col.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value)}
-                          className={`bg-transparent border-none focus-visible:ring-1 focus-visible:ring-emerald-500 h-9 transition-all hover:bg-slate-50 ${col.type === 'number' ? 'text-right font-bold' : col.id === 'concepto' ? 'font-medium' : ''}`}
+                          className={`bg-transparent border-none focus-visible:ring-1 focus-visible:ring-blue-600 h-9 transition-all hover:bg-slate-50 ${col.type === 'number' ? 'text-right font-bold' : col.id === 'concepto' ? 'font-medium' : ''}`}
                         />
                       </td>
                     ))}
@@ -307,7 +307,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                           type={col.type === 'number' ? 'number' : 'text'}
                           value={item[col.id] || ''} 
                           onChange={(e) => handleUpdateItem(item.id, col.id, col.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value)}
-                          className="bg-transparent border-none focus-visible:ring-1 focus-visible:ring-emerald-500 h-9 transition-all hover:bg-slate-50"
+                          className="bg-transparent border-none focus-visible:ring-1 focus-visible:ring-blue-600 h-9 transition-all hover:bg-slate-50"
                         />
                       </td>
                     ))}
@@ -433,21 +433,21 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
           </div>
         </div>
 
-        <div className="bg-emerald-50/20 p-10 rounded-3xl border border-emerald-100 shadow-sm relative overflow-hidden group">
+        <div className="bg-blue-50/20 p-10 rounded-3xl border border-blue-100 shadow-sm relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-            <ArrowUpRight className="h-24 w-24 text-emerald-600" />
+            <ArrowUpRight className="h-24 w-24 text-blue-700" />
           </div>
           <div className="relative z-10 space-y-4">
-            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">Total Aprobado</p>
+            <p className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em]">Total Aprobado</p>
             <div className="flex items-baseline gap-2">
-                <h3 className="text-5xl font-black text-emerald-600 tracking-tighter">
+                <h3 className="text-5xl font-black text-blue-700 tracking-tighter">
                 ${totalApproved.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                 </h3>
-                <span className="text-sm font-bold text-emerald-400">MXN</span>
+                <span className="text-sm font-bold text-blue-400">MXN</span>
             </div>
-            <div className="bg-emerald-100/50 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-100">
-                <TrendingUp className="h-4 w-4 text-emerald-600" />
-                <span className="text-xs font-bold text-emerald-700">67% conversión</span>
+            <div className="bg-blue-100/50 inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-100">
+                <TrendingUp className="h-4 w-4 text-blue-700" />
+                <span className="text-xs font-bold text-blue-700">67% conversión</span>
             </div>
           </div>
         </div>
@@ -465,7 +465,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
             {quotes.map(quote => (
               <div 
                 key={quote.id} 
-                className="flex items-center gap-6 bg-white p-8 rounded-3xl border border-slate-100 hover:border-emerald-100 hover:shadow-xl transition-all group cursor-pointer"
+                className="flex items-center gap-6 bg-white p-8 rounded-3xl border border-slate-100 hover:border-blue-100 hover:shadow-xl transition-all group cursor-pointer"
                 onClick={() => setActiveQuote(quote)}
               >
                 <div className="flex-1 min-w-0 space-y-2">
@@ -519,7 +519,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-12 w-12 text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 rounded-2xl" 
+                      className="h-12 w-12 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-2xl" 
                       onClick={(e) => {
                           e.stopPropagation();
                           setEditingQuote(quote);

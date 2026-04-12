@@ -47,7 +47,7 @@ export default async function DashboardPage() {
               <p className="text-sm font-medium text-slate-500 mb-1">Proyectos Activos</p>
               <h3 className="text-3xl font-bold text-slate-900">{activeProjects}</h3>
             </div>
-            <div className="h-12 w-12 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-500">
+            <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
               <Folder className="h-6 w-6" />
             </div>
           </div>
@@ -88,15 +88,15 @@ export default async function DashboardPage() {
               <Link 
                 key={project.id} 
                 href={`/project/${project.id}`}
-                className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all group"
+                className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all group"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                     {project.name}
                   </h3>
                   <Badge 
                     className={project.status === 'active' 
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                      ? 'bg-blue-50 text-blue-700 border-blue-100' 
                       : 'bg-slate-50 text-slate-600 border-slate-100'
                     }
                   >
@@ -123,7 +123,7 @@ export default async function DashboardPage() {
                       year: 'numeric'
                     })}
                   </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-blue-600 transition-colors" />
                 </div>
               </Link>
             ))}

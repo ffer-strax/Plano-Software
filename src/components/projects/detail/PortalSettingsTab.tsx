@@ -48,7 +48,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="text-xl flex items-center gap-2">
-                <Globe className="h-5 w-5 text-emerald-500" />
+                <Globe className="h-5 w-5 text-blue-600" />
                 Habilitar Portal del Cliente
               </CardTitle>
               <CardDescription>
@@ -58,7 +58,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             <Switch 
               checked={portalEnabled} 
               onCheckedChange={setPortalEnabled}
-              className="data-[state=checked]:bg-emerald-500"
+              className="data-[state=checked]:bg-blue-600"
             />
           </div>
         </CardHeader>
@@ -152,7 +152,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
         <Button 
           onClick={handleSave} 
           disabled={isSaving}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 px-8"
+          className="bg-blue-700 hover:bg-blue-800 text-white gap-2 px-8"
         >
           {isSaving ? 'Guardando...' : (
             <>

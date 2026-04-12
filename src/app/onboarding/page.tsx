@@ -198,7 +198,7 @@ export default function OnboardingPage() {
           {step === 5 && (
             <div className="animate-in zoom-in-95 duration-500">
               <CardHeader className="text-center pt-10 pb-6">
-                <div className="mx-auto h-20 w-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mb-6">
+                <div className="mx-auto h-20 w-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-6">
                   <CheckCircle2 className="h-10 w-10" />
                 </div>
                 <CardTitle className="text-3xl font-black text-slate-900">¡Todo listo!</CardTitle>
