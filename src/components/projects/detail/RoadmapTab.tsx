@@ -209,7 +209,8 @@ export function RoadmapTab({ projectId, milestones, files = [], quotes = [] }: R
                 }`} />
 
                 <div 
-                  className={`bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:border-blue-100 flex flex-col md:flex-row md:items-center gap-6 relative overflow-hidden ${isExpanded ? 'border-blue-100 shadow-md' : ''}`}
+                  onClick={() => setExpandedId(isExpanded ? null : milestone.id)}
+                  className={`bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:border-blue-100 hover:bg-slate-50/50 cursor-pointer flex flex-col md:flex-row md:items-center gap-6 relative overflow-hidden ${isExpanded ? 'border-blue-100 shadow-md bg-slate-50/50' : ''}`}
                 >
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3">
@@ -248,28 +249,31 @@ export function RoadmapTab({ projectId, milestones, files = [], quotes = [] }: R
                   </div>
 
                   <div className="flex items-center gap-6 border-t md:border-t-0 md:border-l border-slate-50 pt-6 md:pt-0 md:pl-8">
-                    <Select 
-                      defaultValue={milestone.status} 
-                      onValueChange={(val) => val && handleStatusChange(milestone.id, val)}
-                    >
-                      <SelectTrigger className="w-36 h-10 bg-slate-50 border-none text-xs font-bold text-slate-600 rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pendiente</SelectItem>
-                        <SelectItem value="in_progress">En curso</SelectItem>
-                        <SelectItem value="done">Completado</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Select 
+                        defaultValue={milestone.status} 
+                        onValueChange={(val) => val && handleStatusChange(milestone.id, val)}
+                      >
+                        <SelectTrigger className="w-36 h-10 bg-white border-slate-200 text-xs font-bold text-slate-600 rounded-xl shadow-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendiente</SelectItem>
+                          <SelectItem value="in_progress">En curso</SelectItem>
+                          <SelectItem value="done">Completado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className={`h-10 w-10 rounded-xl transition-all ${isExpanded ? 'bg-blue-50 text-blue-600' : 'text-slate-300 hover:text-blue-600 hover:bg-blue-50'}`}
+                        variant="outline" 
+                        size="sm" 
+                        className={`h-10 px-4 rounded-xl font-bold text-xs transition-all ${isExpanded ? 'bg-blue-50 border-blue-200 text-blue-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                         onClick={() => setExpandedId(isExpanded ? null : milestone.id)}
                       >
-                        {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                        {isExpanded ? 'Ocultar' : 'Ver detalles'}
+                        {isExpanded ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
                       </Button>
                       <Button 
                         variant="ghost" 
