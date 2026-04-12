@@ -1,27 +1,72 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Receipt, Plus, Pencil, Trash2, Loader2, ArrowUpRight, TrendingUp } from 'lucide-react';
-import { createQuote, updateQuote, deleteQuote } from '@/app/project/[id]/actions';
-import type { Quote } from '@/types';
+import { 
+  Receipt, 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Loader2, 
+  ArrowUpRight, 
+  TrendingUp,
+  ArrowLeft,
+  Save,
+  FileDown,
+  X,
+  PlusCircle
+} from 'lucide-react';
+import { 
+  createQuote, 
+  updateQuote, 
+  deleteQuote, 
+  updateQuoteItems 
+} from '@/app/project/[id]/actions';
+import type { Quote, QuoteItem, QuoteColumn, ColumnType } from '@/types';
 import { Switch } from '@/components/ui/switch';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface QuoteTabProps {
   projectId: string;
   quotes: Quote[];
 }
 
+const DEFAULT_COLUMNS: QuoteColumn[] = [
+  { id: 'concepto', name: 'Concepto', type: 'text' },
+  { id: 'unidad', name: 'Unidad', type: 'text' },
+  { id: 'cantidad', name: 'Cantidad', type: 'number' },
+  { id: 'precio', name: 'Precio Unit.', type: 'number' },
+  { id: 'subtotal', name: 'Subtotal', type: 'number' }, // Handled as readonly in UI
+];
+
 export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | null>(null);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  
+  // Spreadsheet Editor States
+  const [activeQuote, setActiveQuote] = useState<Quote | null>(null);
+  const [items, setItems] = useState<QuoteItem[]>([]);
+  const [customColumns, setCustomColumns] = useState<QuoteColumn[]>([]);
+  const [addColumnDialogOpen, setAddColumnDialogOpen] = useState(false);
+  const [newColumnName, setNewColumnName] = useState('');
+  const [newColumnType, setNewColumnType] = useState<ColumnType>('text');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Initialize spreadsheet editor
+  useEffect(() => {
+    if (activeQuote) {
+      setItems(activeQuote.items || []);
+      setCustomColumns(activeQuote.columns || []);
+    }
+  }, [activeQuote]);
 
   async function handleCreate(formData: FormData) {
     setIsCreating(true);
@@ -43,6 +88,117 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
     }
   }
 
+  const spreadsheetTotal = useMemo(() => {
+    return items.reduce((sum, item) => sum + (Number(item.subtotal) || 0), 0);
+  }, [items]);
+
+  const handleSaveItems = async () => {
+    if (!activeQuote) return;
+    setIsSaving(true);
+    await updateQuoteItems(activeQuote.id, items, customColumns, spreadsheetTotal, projectId);
+    setIsSaving(false);
+    // Optional: show feedback
+  };
+
+  const handleAddItem = () => {
+    const newItem: QuoteItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      concepto: '',
+      unidad: '',
+      cantidad: 0,
+      precio: 0,
+      subtotal: 0,
+    };
+    // Initialize custom columns with empty values
+    customColumns.forEach(col => {
+      newItem[col.id] = col.type === 'number' ? 0 : '';
+    });
+    setItems([...items, newItem]);
+  };
+
+  const handleDeleteItem = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  const handleUpdateItem = (id: string, key: string, value: string | number) => {
+    setItems(items.map(item => {
+      if (item.id === id) {
+        const updatedItem = { ...item, [key]: value };
+        // Recalculate subtotal if cantidad or precio changes
+        if (key === 'cantidad' || key === 'precio') {
+          const qty = Number(key === 'cantidad' ? value : item.cantidad) || 0;
+          const price = Number(key === 'precio' ? value : item.precio) || 0;
+          updatedItem.subtotal = qty * price;
+        }
+        return updatedItem;
+      }
+      return item;
+    }));
+  };
+
+  const handleAddColumn = () => {
+    const colId = `col_${Math.random().toString(36).substr(2, 5)}`;
+    const newCol: QuoteColumn = { id: colId, name: newColumnName, type: newColumnType };
+    setCustomColumns([...customColumns, newCol]);
+    
+    // Update existing items to include this column
+    setItems(items.map(item => ({
+      ...item,
+      [colId]: newColumnType === 'number' ? 0 : ''
+    })));
+    
+    setNewColumnName('');
+    setAddColumnDialogOpen(false);
+  };
+
+  const handleDeleteColumn = (colId: string) => {
+    setCustomColumns(customColumns.filter(c => c.id !== colId));
+    setItems(items.map(item => {
+      const newItem = { ...item };
+      delete newItem[colId];
+      return newItem;
+    }));
+  };
+
+  const exportPDF = () => {
+    if (!activeQuote) return;
+    const doc = new jsPDF('l'); // Landscape for better table fit
+    doc.setFontSize(20);
+    doc.text(activeQuote.title, 14, 22);
+    
+    const head = [
+      DEFAULT_COLUMNS.map(c => c.name).concat(customColumns.map(c => c.name))
+    ];
+    
+    const body = items.map(item => {
+      return DEFAULT_COLUMNS.map(c => {
+        if (c.id === 'subtotal' || c.id === 'precio') {
+          return `$${Number(item[c.id]).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`;
+        }
+        return item[c.id];
+      }).concat(customColumns.map(c => item[c.id]));
+    });
+
+    autoTable(doc, {
+      startY: 30,
+      head: head,
+      body: body,
+      foot: [[
+        'TOTAL', 
+        '', 
+        '', 
+        '', 
+        `$${spreadsheetTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}`,
+        ...customColumns.map(() => '')
+      ]],
+      theme: 'grid',
+      headStyles: { fillColor: [15, 23, 42] },
+      footStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold' }
+    });
+
+    doc.save(`${activeQuote.title.replace(/\s+/g, '_')}.pdf`);
+  };
+
   function getStatusStyle(status: string) {
     switch(status) {
       case 'approved': return 'bg-emerald-50 text-emerald-700';
@@ -63,6 +219,195 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
   const totalQuoted = quotes.reduce((acc, q) => acc + q.total, 0);
   const totalApproved = quotes.filter(q => q.status === 'approved').reduce((acc, q) => acc + q.total, 0);
 
+  // VIEW: Spreadsheet Editor
+  if (activeQuote) {
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setActiveQuote(null)}
+                className="h-12 w-12 rounded-2xl bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-slate-900"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">{activeQuote.title}</h2>
+              <p className="text-sm text-slate-500">Editor de presupuesto detallado</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              onClick={exportPDF}
+              className="h-12 px-6 rounded-2xl border-slate-200 font-bold flex items-center gap-2"
+            >
+              <FileDown className="h-4 w-4" />
+              Exportar PDF
+            </Button>
+            <Button 
+              onClick={handleSaveItems}
+              disabled={isSaving}
+              className="h-12 px-8 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 shadow-lg shadow-emerald-100"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Guardar Cambios
+            </Button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  {DEFAULT_COLUMNS.slice(0, 4).map(col => (
+                    <th key={col.id} className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                      {col.name}
+                    </th>
+                  ))}
+                  {customColumns.map(col => (
+                    <th key={col.id} className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap relative group">
+                      <div className="flex items-center justify-between gap-2">
+                        {col.name}
+                        <button 
+                            onClick={() => handleDeleteColumn(col.id)}
+                            className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </th>
+                  ))}
+                  <th key="subtotal" className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                    Subtotal
+                  </th>
+                  <th className="px-6 py-4 w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {items.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
+                    {DEFAULT_COLUMNS.slice(0, 4).map(col => (
+                      <td key={col.id} className={`px-4 py-3 ${col.type === 'number' ? 'w-32 text-right' : col.id === 'concepto' ? 'min-w-[250px]' : 'w-32'}`}>
+                        <Input 
+                          type={col.type === 'number' ? 'number' : 'text'}
+                          value={item[col.id]} 
+                          onChange={(e) => handleUpdateItem(item.id, col.id, col.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value)}
+                          className={`bg-transparent border-none focus-visible:ring-1 focus-visible:ring-emerald-500 h-9 transition-all hover:bg-slate-50 ${col.type === 'number' ? 'text-right font-bold' : col.id === 'concepto' ? 'font-medium' : ''}`}
+                        />
+                      </td>
+                    ))}
+                    {customColumns.map(col => (
+                      <td key={col.id} className="px-4 py-3 min-w-[150px]">
+                        <Input 
+                          type={col.type === 'number' ? 'number' : 'text'}
+                          value={item[col.id] || ''} 
+                          onChange={(e) => handleUpdateItem(item.id, col.id, col.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value)}
+                          className="bg-transparent border-none focus-visible:ring-1 focus-visible:ring-emerald-500 h-9 transition-all hover:bg-slate-50"
+                        />
+                      </td>
+                    ))}
+                    <td className="px-6 py-3 w-40 text-right font-black text-slate-900">
+                      ${(Number(item.subtotal) || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-4 py-3 w-10">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="h-8 w-8 text-slate-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={handleAddItem}
+                variant="outline" 
+                className="h-11 px-6 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-bold flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Agregar fila
+              </Button>
+              <Button 
+                onClick={() => setAddColumnDialogOpen(true)}
+                variant="ghost" 
+                className="h-11 px-6 rounded-2xl text-slate-400 hover:text-slate-900 font-bold flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Agregar columna
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-4 bg-white px-8 py-3 rounded-2xl border border-slate-100 shadow-sm">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Resumen Total</span>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-slate-900">
+                    ${spreadsheetTotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">{activeQuote.currency}</span>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dialog for adding column */}
+        <Dialog open={addColumnDialogOpen} onOpenChange={setAddColumnDialogOpen}>
+          <DialogContent className="rounded-3xl border-none shadow-2xl p-10">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black text-slate-900">Nueva Columna Personalizada</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6 pt-6">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Nombre</Label>
+                <Input 
+                    value={newColumnName} 
+                    onChange={(e) => setNewColumnName(e.target.value)}
+                    placeholder="Ej. Notas o Responsable" 
+                    className="h-14 bg-slate-50 border-none rounded-2xl font-medium" 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Tipo de Dato</Label>
+                <Select value={newColumnType} onValueChange={(val) => val && setNewColumnType(val as ColumnType)}>
+                  <SelectTrigger className="h-14 bg-slate-50 border-none rounded-2xl font-bold">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="text">Texto</SelectItem>
+                    <SelectItem value="number">Número</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter className="pt-6">
+                <Button onClick={() => setAddColumnDialogOpen(false)} variant="outline" className="h-14 px-8 rounded-2xl">Cancelar</Button>
+                <Button 
+                    onClick={handleAddColumn} 
+                    disabled={!newColumnName}
+                    className="h-14 px-10 rounded-2xl bg-slate-900 text-white font-bold"
+                >
+                  Confirmar
+                </Button>
+              </DialogFooter>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // VIEW: Quote List
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-300">
       {/* Summary Cards */}
@@ -120,7 +465,8 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
             {quotes.map(quote => (
               <div 
                 key={quote.id} 
-                className="flex items-center gap-6 bg-white p-8 rounded-3xl border border-slate-100 hover:border-emerald-100 hover:shadow-xl transition-all group"
+                className="flex items-center gap-6 bg-white p-8 rounded-3xl border border-slate-100 hover:border-emerald-100 hover:shadow-xl transition-all group cursor-pointer"
+                onClick={() => setActiveQuote(quote)}
               >
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center gap-4">
@@ -137,24 +483,34 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-8 border-l border-slate-50 pl-10">
+                <div className="flex items-center gap-8 border-l border-slate-50 pl-10" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Portal</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Visible al cliente</span>
                     <Switch defaultChecked={true} className="scale-90" />
                   </div>
 
                   <div className="hidden sm:block">
                     <Select 
                       defaultValue={quote.status} 
-                      onValueChange={(val) => val && updateQuote(new FormData())}
+                      onValueChange={(val) => {
+                          if (!val) return;
+                          const formData = new FormData();
+                          formData.append('quoteId', quote.id);
+                          formData.append('projectId', projectId);
+                          formData.append('title', quote.title);
+                          formData.append('total', quote.total.toString());
+                          formData.append('status', val);
+                          formData.append('currency', quote.currency);
+                          updateQuote(formData);
+                      }}
                     >
                       <SelectTrigger className="h-12 w-40 bg-slate-50 border-none text-xs font-bold text-slate-600 rounded-2xl">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="draft">Borrador</SelectItem>
-                        <SelectItem value="sent">Enviado</SelectItem>
-                        <SelectItem value="approved">Aprobado</SelectItem>
+                        <SelectItem value="sent">Enviada</SelectItem>
+                        <SelectItem value="approved">Aprobada</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -164,7 +520,10 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                       variant="ghost" 
                       size="icon" 
                       className="h-12 w-12 text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 rounded-2xl" 
-                      onClick={() => setEditingQuote(quote)}
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingQuote(quote);
+                      }}
                     >
                       <Pencil className="h-5 w-5" />
                     </Button>
@@ -172,7 +531,10 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                       variant="ghost" 
                       size="icon" 
                       className="h-12 w-12 text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-2xl" 
-                      onClick={() => handleDelete(quote.id)} 
+                      onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(quote.id);
+                      }} 
                       disabled={isDeletingId === quote.id}
                     >
                       {isDeletingId === quote.id ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
@@ -185,6 +547,7 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
         )}
       </div>
 
+      {/* Create Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent className="rounded-3xl border-none shadow-2xl p-10">
           <DialogHeader>
@@ -214,15 +577,6 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Notas (Opcional)</Label>
-              <textarea 
-                name="notes" 
-                rows={4} 
-                className="flex w-full rounded-2xl border-none bg-slate-50 px-4 py-3 text-sm font-medium focus-visible:outline-none" 
-                placeholder="Detalles adicionales..."
-              />
-            </div>
             <DialogFooter className="mt-10">
               <Button type="button" variant="outline" onClick={() => setCreateDialogOpen(false)} className="h-14 px-8 rounded-2xl border-slate-200">Cancelar</Button>
               <Button type="submit" disabled={isCreating} className="h-14 px-10 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold">
@@ -234,16 +588,17 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Basic Details Dialog */}
       <Dialog open={!!editingQuote} onOpenChange={(open) => !open && setEditingQuote(null)}>
         <DialogContent className="rounded-3xl border-none shadow-2xl p-10">
           <DialogHeader>
-            <DialogTitle className="text-3xl font-black text-slate-900 tracking-tight">Editar Cotización</DialogTitle>
+            <DialogTitle className="text-3xl font-black text-slate-900 tracking-tight">Editar Detalles</DialogTitle>
           </DialogHeader>
           {editingQuote && (
             <form action={handleUpdate} className="space-y-6 pt-6">
               <input type="hidden" name="projectId" value={projectId} />
               <input type="hidden" name="quoteId" value={editingQuote.id} />
-              <div className="scroll-y-2">
+              <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Título</Label>
                 <Input className="h-14 bg-slate-50 border-none rounded-2xl font-medium" name="title" defaultValue={editingQuote.title} required />
               </div>
@@ -264,28 +619,6 @@ export function QuoteTab({ projectId, quotes }: QuoteTabProps) {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Estado</Label>
-                <Select name="status" defaultValue={editingQuote.status}>
-                  <SelectTrigger className="h-14 bg-slate-50 border-none rounded-2xl font-bold">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Borrador</SelectItem>
-                    <SelectItem value="sent">Enviada</SelectItem>
-                    <SelectItem value="approved">Aprobada</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Notas</Label>
-                <textarea 
-                  name="notes" 
-                  rows={4} 
-                  defaultValue={editingQuote.notes || ''}
-                  className="flex w-full rounded-2xl border-none bg-slate-50 px-4 py-3 text-sm font-medium focus-visible:outline-none" 
-                />
               </div>
               <DialogFooter className="mt-10">
                 <Button type="button" variant="outline" onClick={() => setEditingQuote(null)} className="h-14 px-8 rounded-2xl border-slate-200">Cancelar</Button>

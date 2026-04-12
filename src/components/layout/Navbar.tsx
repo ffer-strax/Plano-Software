@@ -62,10 +62,17 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
       <nav className="flex-1 space-y-1">
         <Link 
           href="/dashboard" 
-          className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
         >
           <LayoutDashboard className="h-4 w-4" />
           Dashboard
+        </Link>
+        <Link 
+          href="/clients" 
+          className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+        >
+          <User className="h-4 w-4" />
+          Clientes
         </Link>
         <Link 
           href="/settings" 

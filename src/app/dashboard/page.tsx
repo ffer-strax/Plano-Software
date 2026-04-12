@@ -3,9 +3,9 @@ import { Sidebar } from '@/components/layout/Navbar';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { getProjects, getClients } from '@/app/projects/actions';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Folder, ArrowRight, Search, FileText, Clock } from 'lucide-react';
+import { Folder, ArrowRight, FileText, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { DashboardSearch } from '@/components/dashboard/DashboardSearch';
 import type { Client } from '@/types';
 
 export default async function DashboardPage() {
@@ -34,7 +34,10 @@ export default async function DashboardPage() {
               Gestiona tus proyectos de arquitectura
             </p>
           </div>
-          <CreateProjectDialog clients={clients} />
+          <div className="flex items-center gap-2">
+            <DashboardSearch />
+            <CreateProjectDialog clients={clients} />
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -68,14 +71,6 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-10">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input 
-            className="pl-10 h-11 bg-white border-slate-200 rounded-lg shadow-sm" 
-            placeholder="Buscar proyectos o clientes..." 
-          />
-        </div>
 
         {projects.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-12 text-center">

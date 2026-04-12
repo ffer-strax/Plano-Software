@@ -2,6 +2,18 @@ export type UserRole = 'architect' | 'client';
 export type ProjectStatus = 'active' | 'paused' | 'completed';
 export type MilestoneStatus = 'pending' | 'in_progress' | 'done';
 export type QuoteStatus = 'draft' | 'sent' | 'approved';
+export type ColumnType = 'text' | 'number';
+
+export interface QuoteItem {
+  id: string;
+  [key: string]: string | number;
+}
+
+export interface QuoteColumn {
+  id: string;
+  name: string;
+  type: ColumnType;
+}
 
 export interface User {
   id: string;
@@ -71,6 +83,8 @@ export interface Quote {
   currency: string;
   status: QuoteStatus;
   notes?: string;
+  items?: QuoteItem[];
+  columns?: QuoteColumn[];
   created_at: string;
 }
 export interface TimeLog {

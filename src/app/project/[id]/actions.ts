@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import type { Milestone, ProjectFile } from '@/types';
+import type { Milestone, ProjectFile, QuoteItem, QuoteColumn } from '@/types';
 
 export async function getProjectDetail(id: string) {
   const supabase = createClient();
@@ -272,6 +272,20 @@ export async function deleteQuote(quoteId: string, projectId: string) {
   const { error } = await supabase
     .from('quotes')
     .delete()
+    .eq('id', quoteId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/project/${projectId}`);
+  return { success: true };
+}
+
+export async function updateQuoteItems(quoteId: string, items: QuoteItem[], columns: QuoteColumn[], total: number, projectId: string) {
+  const supabase = createClient();
+  
+  const { error } = await supabase
+    .from('quotes')
+    .update({ items, columns, total })
     .eq('id', quoteId);
 
   if (error) return { error: error.message };
