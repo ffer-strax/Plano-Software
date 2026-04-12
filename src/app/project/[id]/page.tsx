@@ -81,7 +81,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <EditProjectDialog project={project} clients={clients} />
+                  {/* Edit button removed from here */}
                 </div>
               </div>
 
