@@ -93,7 +93,7 @@ function VisibilityCard({
   subOptions,
 }: VisibilityCardProps) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
       {/* Main toggle row */}
       <div className="flex items-center justify-between px-5 py-4 min-h-[60px]">
         <div className="flex items-center gap-3">
