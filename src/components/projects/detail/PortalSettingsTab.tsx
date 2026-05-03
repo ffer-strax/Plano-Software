@@ -36,13 +36,12 @@ function InlineToast({ state, label }: { state: SaveState; label: string }) {
   if (state === 'idle') return null;
   return (
     <span
-      className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest transition-all ${
-        state === 'saving'
+      className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest transition-all ${state === 'saving'
           ? 'text-slate-400'
           : state === 'saved'
-          ? 'text-emerald-600'
-          : 'text-red-500'
-      }`}
+            ? 'text-emerald-600'
+            : 'text-red-500'
+        }`}
     >
       {state === 'saving' && <Loader2 className="h-3 w-3 animate-spin" />}
       {state === 'saved' && <Check className="h-3 w-3" />}
@@ -104,7 +103,7 @@ function VisibilityCard({
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">{sublabel}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
           <InlineToast state={mainSaveState} label={label} />
           <Switch
             checked={mainChecked}
@@ -220,10 +219,10 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
   const handleMilestoneDates = (v: boolean) => { setShowMilestoneDates(v); saveSubOption(setRoadmapState, 'portal_show_milestone_dates', v); };
   const handleMilestoneNotes = (v: boolean) => { setShowMilestoneNotes(v); saveSubOption(setRoadmapState, 'portal_show_milestone_notes', v); };
   const handleMilestoneFiles = (v: boolean) => { setShowMilestoneFiles(v); saveSubOption(setRoadmapState, 'portal_show_milestone_files', v); };
-  const handleFileSize       = (v: boolean) => { setShowFileSize(v);       saveSubOption(setFilesState, 'portal_show_file_size', v); };
-  const handleFileDownload   = (v: boolean) => { setShowFileDownload(v);   saveSubOption(setFilesState, 'portal_show_file_download', v); };
+  const handleFileSize = (v: boolean) => { setShowFileSize(v); saveSubOption(setFilesState, 'portal_show_file_size', v); };
+  const handleFileDownload = (v: boolean) => { setShowFileDownload(v); saveSubOption(setFilesState, 'portal_show_file_download', v); };
   const handleQuoteBreakdown = (v: boolean) => { setShowQuoteBreakdown(v); saveSubOption(setQuotesState, 'portal_show_quote_breakdown', v); };
-  const handleQuoteTaxes     = (v: boolean) => { setShowQuoteTaxes(v);     saveSubOption(setQuotesState, 'portal_show_quote_taxes', v); };
+  const handleQuoteTaxes = (v: boolean) => { setShowQuoteTaxes(v); saveSubOption(setQuotesState, 'portal_show_quote_taxes', v); };
 
 
   /* ── PIN handlers ── */
@@ -280,9 +279,9 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             onMainToggle={handleRoadmapToggle}
             mainSaveState={roadmapState}
             subOptions={[
-              { label: 'Ver fechas de entrega',    checked: showMilestoneDates, onCheckedChange: handleMilestoneDates },
-              { label: 'Ver notas de hito',        checked: showMilestoneNotes, onCheckedChange: handleMilestoneNotes },
-              { label: 'Ver archivos vinculados',  checked: showMilestoneFiles, onCheckedChange: handleMilestoneFiles },
+              { label: 'Ver fechas de entrega', checked: showMilestoneDates, onCheckedChange: handleMilestoneDates },
+              { label: 'Ver notas de hito', checked: showMilestoneNotes, onCheckedChange: handleMilestoneNotes },
+              { label: 'Ver archivos vinculados', checked: showMilestoneFiles, onCheckedChange: handleMilestoneFiles },
             ]}
           />
 
@@ -294,7 +293,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             onMainToggle={handleFilesToggle}
             mainSaveState={filesState}
             subOptions={[
-              { label: 'Ver tamaño de archivo',   checked: showFileSize,     onCheckedChange: handleFileSize },
+              { label: 'Ver tamaño de archivo', checked: showFileSize, onCheckedChange: handleFileSize },
               { label: 'Permitir descarga directa', checked: showFileDownload, onCheckedChange: handleFileDownload },
             ]}
           />
@@ -308,7 +307,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             mainSaveState={quotesState}
             subOptions={[
               { label: 'Ver desglose de costos', checked: showQuoteBreakdown, onCheckedChange: handleQuoteBreakdown },
-              { label: 'Ver impuestos',          checked: showQuoteTaxes,     onCheckedChange: handleQuoteTaxes },
+              { label: 'Ver impuestos', checked: showQuoteTaxes, onCheckedChange: handleQuoteTaxes },
             ]}
           />
 
@@ -368,8 +367,8 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
                         {showPin && pinValue
                           ? pinValue
                           : pinValue
-                          ? '●'.repeat(pinValue.length)
-                          : <span className="text-slate-300 text-sm tracking-normal font-bold">Sin PIN configurado</span>}
+                            ? '●'.repeat(pinValue.length)
+                            : <span className="text-slate-300 text-sm tracking-normal font-bold">Sin PIN configurado</span>}
                       </div>
                       <button
                         type="button"
