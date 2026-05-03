@@ -105,9 +105,11 @@ function VisibilityCard({
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-auto">
           <InlineToast state={mainSaveState} label={label} />
-          <Switch
+          <input
+            type="checkbox"
             checked={mainChecked}
-            onCheckedChange={onMainToggle}
+            onChange={(e) => onMainToggle(e.target.checked)}
+            className="h-5 w-5 cursor-pointer accent-orange-500"
           />
         </div>
       </div>
@@ -349,7 +351,12 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <InlineToast state={pinSaving} label="PIN" />
-                  <Switch checked={usePin} onCheckedChange={handlePinToggle} />
+                  <input
+                    type="checkbox"
+                    checked={usePin}
+                    onChange={(e) => handlePinToggle(e.target.checked)}
+                    className="h-5 w-5 cursor-pointer accent-orange-500"
+                  />
                 </div>
               </div>
 
