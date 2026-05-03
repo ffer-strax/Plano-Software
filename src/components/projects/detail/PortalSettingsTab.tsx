@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -72,6 +71,33 @@ function SubOption({ label, checked, onCheckedChange }: SubOptionProps) {
   );
 }
 
+/* ─── custom toggle switch ───────────────────────────── */
+function CustomSwitch({ checked, onChange, disabled }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`
+        relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent 
+        transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
+        ${checked ? 'bg-orange-500' : 'bg-slate-200'}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+      `}
+    >
+      <span
+        className={`
+          pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 
+          transition duration-200 ease-in-out
+          ${checked ? 'translate-x-5' : 'translate-x-0'}
+        `}
+      />
+    </button>
+  );
+}
+
 /* ─── visibility section card ────────────────────────────── */
 interface VisibilityCardProps {
   icon: React.ReactNode;
@@ -105,11 +131,9 @@ function VisibilityCard({
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-auto">
           <InlineToast state={mainSaveState} label={label} />
-          <input
-            type="checkbox"
+          <CustomSwitch
             checked={mainChecked}
-            onChange={(e) => onMainToggle(e.target.checked)}
-            className="h-5 w-5 cursor-pointer accent-orange-500"
+            onChange={onMainToggle}
           />
         </div>
       </div>
@@ -351,12 +375,7 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <InlineToast state={pinSaving} label="PIN" />
-                  <input
-                    type="checkbox"
-                    checked={usePin}
-                    onChange={(e) => handlePinToggle(e.target.checked)}
-                    className="h-5 w-5 cursor-pointer accent-orange-500"
-                  />
+                  <CustomSwitch checked={usePin} onChange={handlePinToggle} />
                 </div>
               </div>
 
