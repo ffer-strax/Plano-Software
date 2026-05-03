@@ -171,7 +171,6 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
 
   /* visibility: quotes sub-options */
   const [showQuoteBreakdown, setShowQuoteBreakdown] = useState(project.portal_show_quote_breakdown ?? true);
-  const [showQuoteTaxes, setShowQuoteTaxes] = useState(project.portal_show_quote_taxes ?? true);
 
   /* save states */
   const [roadmapState, setRoadmapState] = useState<SaveState>('idle');
@@ -248,7 +247,6 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
   const handleFileSize = (v: boolean) => { setShowFileSize(v); saveSubOption(setFilesState, 'portal_show_file_size', v); };
   const handleFileDownload = (v: boolean) => { setShowFileDownload(v); saveSubOption(setFilesState, 'portal_show_file_download', v); };
   const handleQuoteBreakdown = (v: boolean) => { setShowQuoteBreakdown(v); saveSubOption(setQuotesState, 'portal_show_quote_breakdown', v); };
-  const handleQuoteTaxes = (v: boolean) => { setShowQuoteTaxes(v); saveSubOption(setQuotesState, 'portal_show_quote_taxes', v); };
 
 
   /* ── PIN handlers ── */
@@ -333,7 +331,6 @@ export function PortalSettingsTab({ project }: PortalSettingsTabProps) {
             mainSaveState={quotesState}
             subOptions={[
               { label: 'Ver desglose de costos', checked: showQuoteBreakdown, onCheckedChange: handleQuoteBreakdown },
-              { label: 'Ver impuestos', checked: showQuoteTaxes, onCheckedChange: handleQuoteTaxes },
             ]}
           />
 
