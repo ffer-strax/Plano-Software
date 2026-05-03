@@ -38,6 +38,16 @@ Un proyecto = un encargo de arquitectura.
 | portal_token | text | único, generado automáticamente |
 | portal_pin | text | nullable, hash de PIN de 4 dígitos |
 | portal_enabled | boolean | default true |
+| portal_show_roadmap | boolean | default true |
+| portal_show_files | boolean | default true |
+| portal_show_quotes | boolean | default true |
+| portal_show_milestone_dates | boolean | default true |
+| portal_show_milestone_notes | boolean | default true |
+| portal_show_milestone_files | boolean | default true |
+| portal_show_file_size | boolean | default true |
+| portal_show_file_download | boolean | default true |
+| portal_show_quote_breakdown | boolean | default true |
+| portal_show_quote_taxes | boolean | default true |
 | created_at | timestamptz | default now() |
 | updated_at | timestamptz | default now() |
 
