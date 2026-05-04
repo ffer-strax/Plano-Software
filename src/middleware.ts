@@ -37,7 +37,8 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = 
     pathname === '/login' ||
     pathname === '/register' ||
-    pathname.startsWith('/portal/')
+    pathname.startsWith('/portal/') ||
+    pathname.startsWith('/api/stripe/webhook')
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
