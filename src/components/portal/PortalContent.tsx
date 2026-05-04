@@ -1,6 +1,6 @@
 'use client';
+import { useState } from 'react';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { 
   FileIcon, 
@@ -58,12 +58,19 @@ export function PortalContent({
   });
   const latestQuote = sortedQuotes[0];
 
+  const visibleTabs = [
+    { id: 'roadmap', label: 'Avance', visible: showRoadmap },
+    { id: 'files', label: 'Documentos', visible: showFiles },
+    { id: 'quote', label: 'Presupuesto', visible: showQuotes && latestQuote !== undefined }
+  ].filter(t => t.visible);
+
+  const [activeTab, setActiveTab] = useState(visibleTabs[0]?.id);
+
   function formatSize(bytes?: number) {
     if (!bytes) return 'N/A';
     const kb = bytes / 1024;
     return kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(1)} KB`;
   }
-
 
   function getFileIcon(type?: string) {
     const t = type?.toLowerCase() || '';
@@ -154,15 +161,9 @@ export function PortalContent({
     doc.save(`cotizacion_${latestQuote.title.toLowerCase().replace(/\s+/g, '_')}.pdf`);
   };
 
-  const visibleTabs = [
-    { id: 'roadmap', label: 'Avance', visible: showRoadmap },
-    { id: 'files', label: 'Documentos', visible: showFiles },
-    { id: 'quote', label: 'Presupuesto', visible: showQuotes && latestQuote !== undefined }
-  ].filter(t => t.visible);
-
   if (visibleTabs.length === 0) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-20 text-center">
+      <div className="mx-auto max-w-[720px] px-4 py-20 text-center">
         <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 mb-6">
           <Calendar className="h-10 w-10 text-slate-200" />
         </div>
@@ -175,12 +176,12 @@ export function PortalContent({
   }
 
   return (
-    <div className="max-w-[720px] mx-auto space-y-20 px-6 py-20">
+    <div className="max-w-[720px] mx-auto space-y-12 px-4 py-20">
       {/* 1. PROGRESS HERO */}
-      <section className="bg-white border border-slate-200 p-10 ambient-shadow">
+      <section className="bg-white border border-slate-200 p-6 md:p-10 ambient-shadow">
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-[48px] font-black tracking-tight text-[#0F172A] leading-[1.1] mb-2">{projectName}</h1>
+            <h1 className="text-[32px] md:text-[48px] font-black tracking-tight text-[#0F172A] leading-[1.1] mb-2">{projectName}</h1>
             <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">ESTADO ACTUAL DEL PROYECTO</p>
           </div>
           <span className="bg-[#0F172A] text-white px-4 py-1 font-black text-[10px] tracking-widest uppercase">
@@ -233,8 +234,8 @@ export function PortalContent({
           <div className="absolute left-[23px] top-4 bottom-4 w-1 bg-[#E2E8F0]" />
           <div className="space-y-12">
             {milestones.length === 0 ? (
-              <div className="relative pl-16">
-                <div className="bg-white border border-slate-200 p-8 ambient-shadow italic text-slate-400">
+              <div className="relative pl-12 md:pl-16">
+                <div className="bg-white border border-slate-200 p-5 md:p-8 ambient-shadow italic text-slate-400">
                   No hay etapas definidas aún.
                 </div>
               </div>
@@ -245,36 +246,36 @@ export function PortalContent({
                 const isPending = milestone.status === 'pending';
 
                 return (
-                  <div key={milestone.id} className={`relative pl-16 ${isPending ? 'opacity-40' : ''}`}>
+                  <div key={milestone.id} className={`relative pl-12 md:pl-16 ${isPending ? 'opacity-40' : ''}`}>
                     {/* Indicator */}
                     <div className="absolute left-0 top-0 z-10 flex items-center justify-center">
                       {isDone && (
-                        <div className="w-12 h-12 bg-[#10B981] rounded-full flex items-center justify-center text-white">
-                          <CheckCircle2 className="h-6 w-6" />
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-[#10B981] rounded-full flex items-center justify-center text-white">
+                          <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6" />
                         </div>
                       )}
                       {isInProgress && (
-                        <div className="w-12 h-12 bg-white border-4 border-[#F97316] rounded-full flex items-center justify-center">
-                          <div className="w-4 h-4 bg-[#F97316] rounded-full" />
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-white border-4 border-[#F97316] rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 md:w-4 md:h-4 bg-[#F97316] rounded-full" />
                         </div>
                       )}
                       {isPending && (
-                        <div className="w-12 h-12 bg-[#94A3B8] rounded-full flex items-center justify-center">
-                          <div className="w-4 h-4 bg-white rounded-full" />
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-[#94A3B8] rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full" />
                         </div>
                       )}
                     </div>
 
                     {/* Card */}
-                    <div className={`bg-white p-8 ambient-shadow border border-slate-200 ${
+                    <div className={`bg-white p-5 md:p-8 ambient-shadow border border-slate-200 ${
                       isInProgress ? 'border-l-8 border-l-[#F97316]' : ''
                     }`}>
-                      <h3 className={`text-[18px] font-bold ${isPending ? 'text-slate-400' : 'text-[#0F172A]'}`}>
+                      <h3 className={`text-base md:text-lg font-bold ${isPending ? 'text-slate-400' : 'text-[#0F172A]'}`}>
                         {milestone.title}
                       </h3>
                       
                       {isInProgress && (
-                        <p className="text-[#F97316] font-bold mt-1 text-[16px]">
+                        <p className="text-[#F97316] font-bold mt-1 text-sm md:text-base">
                           {milestone.description || 'En curso'}
                         </p>
                       )}
@@ -282,7 +283,7 @@ export function PortalContent({
                       {isDone && (
                         <>
                           {showMilestoneNotes && milestone.description && (
-                            <p className="text-[#64748B] mt-1 text-[16px]">{milestone.description}</p>
+                            <p className="text-[#64748B] mt-1 text-sm md:text-base">{milestone.description}</p>
                           )}
                           {showMilestoneDates && milestone.due_date && (
                             <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-100 rounded-full">
@@ -296,7 +297,7 @@ export function PortalContent({
                       )}
 
                       {isPending && (
-                        <p className="text-slate-400 mt-1 text-[16px]">Pendiente de inicio</p>
+                        <p className="text-slate-400 mt-1 text-sm md:text-base">Pendiente de inicio</p>
                       )}
                     </div>
                   </div>
@@ -308,21 +309,26 @@ export function PortalContent({
       )}
 
       {/* 3. TABS SECTION */}
-      <section className="space-y-10">
-        <Tabs defaultValue={visibleTabs[0]?.id} className="w-full">
-          <TabsList className="bg-transparent border-b border-slate-200 p-0 h-auto w-full justify-start rounded-none">
-            {visibleTabs.map(tab => (
-              <TabsTrigger 
-                key={tab.id}
-                value={tab.id}
-                className="px-8 py-4 font-black text-[10px] tracking-widest uppercase border-b-2 border-transparent data-[state=active]:border-[#F97316] data-[state=active]:text-[#0F172A] text-slate-400 hover:text-slate-600 transition-all rounded-none bg-transparent"
-              >
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      <section className="space-y-10 w-full overflow-hidden">
+        <div className="flex border-b border-slate-200 w-full overflow-x-auto no-scrollbar">
+          {visibleTabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 md:px-8 py-3 md:py-4 text-[10px] tracking-widest uppercase transition-all whitespace-nowrap border-b-2 ${
+                activeTab === tab.id 
+                  ? 'border-[#F97316] text-[#0F172A] font-[900]' 
+                  : 'border-transparent text-[#94A3B8] hover:text-[#64748B]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          <TabsContent value="roadmap" className="mt-10 focus-visible:outline-none">
+        {/* Tab Content: Roadmap */}
+        {activeTab === 'roadmap' && showRoadmap && (
+          <div className="animate-in fade-in duration-300">
             <div className="bg-white border border-slate-200 p-8 ambient-shadow">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-2 h-10 bg-[#F97316]" />
@@ -352,12 +358,16 @@ export function PortalContent({
                 ))}
               </div>
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="files" className="mt-10 focus-visible:outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Tab Content: Files */}
+        {activeTab === 'files' && showFiles && (
+          <div className="animate-in fade-in duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {files.length === 0 ? (
                 <div className="col-span-full py-20 text-center text-slate-400 italic bg-white border border-dashed rounded-none">
+                  <FileIcon className="h-10 w-10 mx-auto mb-4 opacity-20" />
                   No se han compartido documentos aún.
                 </div>
               ) : (
@@ -377,7 +387,7 @@ export function PortalContent({
                         href={file.url} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-[#F97316] transition-colors"
+                        className="text-slate-400 hover:text-[#F97316] transition-colors p-2"
                       >
                         <Download className="h-5 w-5" />
                       </a>
@@ -386,33 +396,34 @@ export function PortalContent({
                 ))
               )}
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="quote" className="mt-10 focus-visible:outline-none">
-            {latestQuote && (
-              <div className="bg-[#0F172A] p-10 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-slate-800 ambient-shadow">
-                <div className="w-full md:w-auto text-center md:text-left">
-                  <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">PRESUPUESTO EJECUCIÓN</span>
-                  <h2 className="text-[40px] font-black mt-2">
-                    ${latestQuote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} 
-                    <span className="text-[18px] text-slate-400 font-normal ml-2">{latestQuote.currency}</span>
-                  </h2>
-                  {showQuoteBreakdown && latestQuote.notes && (
-                    <p className="text-slate-400 text-sm mt-4 italic max-w-md line-clamp-2">
-                      &quot;{latestQuote.notes}&quot;
-                    </p>
-                  )}
-                </div>
-                <Button 
-                  onClick={downloadPDF}
-                  className="bg-[#F97316] hover:bg-orange-600 text-white font-black text-[10px] px-10 py-8 tracking-widest transition-transform active:scale-95 rounded-none"
-                >
-                  DESCARGAR PDF
-                </Button>
+        {/* Tab Content: Quote */}
+        {activeTab === 'quote' && showQuotes && latestQuote && (
+          <div className="animate-in fade-in duration-300">
+            <div className="bg-[#0F172A] p-10 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-slate-800 ambient-shadow">
+              <div className="w-full md:w-auto text-center md:text-left">
+                <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">PRESUPUESTO EJECUCIÓN</span>
+                <h2 className="text-[28px] md:text-[40px] font-black mt-2 leading-none">
+                  ${latestQuote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} 
+                  <span className="text-sm md:text-[18px] text-slate-400 font-normal ml-2">{latestQuote.currency}</span>
+                </h2>
+                {showQuoteBreakdown && latestQuote.notes && (
+                  <p className="text-slate-400 text-sm mt-4 italic max-w-md line-clamp-2">
+                    &quot;{latestQuote.notes}&quot;
+                  </p>
+                )}
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
+              <Button 
+                onClick={downloadPDF}
+                className="w-full md:w-auto bg-[#F97316] hover:bg-orange-600 text-white font-black text-[10px] px-10 py-8 tracking-widest transition-transform active:scale-95 rounded-none"
+              >
+                DESCARGAR PDF
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
