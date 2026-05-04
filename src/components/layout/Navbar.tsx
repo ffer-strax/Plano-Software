@@ -45,7 +45,7 @@ export function Navbar({ userEmail }: { userEmail?: string | null }) {
   );
 }
 
-import { LayoutDashboard, Settings } from 'lucide-react';
+import { LayoutDashboard, Settings, CreditCard } from 'lucide-react';
 
 export function Sidebar({ userEmail }: { userEmail?: string | null }) {
   return (
@@ -75,11 +75,18 @@ export function Sidebar({ userEmail }: { userEmail?: string | null }) {
           Clientes
         </Link>
         <Link 
+          href="/settings/billing" 
+          className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+        >
+          <CreditCard className="h-4 w-4" />
+          Planes y Facturación
+        </Link>
+        <Link 
           href="/settings" 
           className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
         >
           <Settings className="h-4 w-4" />
-          Settings
+          Configuración
         </Link>
       </nav>
 
