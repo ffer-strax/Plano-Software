@@ -57,3 +57,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .ambient-shadow {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.04);
+  }
+}
