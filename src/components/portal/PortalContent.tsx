@@ -72,6 +72,18 @@ export function PortalContent({
     return kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(1)} KB`;
   }
 
+  function getFileExtension(type?: string, name?: string): string {
+    if (name) {
+      const ext = name.split('.').pop();
+      if (ext) return ext.toUpperCase();
+    }
+    if (type) {
+      const parts = type.split('/');
+      return parts[parts.length - 1].toUpperCase();
+    }
+    return 'ARCHIVO';
+  }
+
   function getFileIcon(type?: string) {
     const t = type?.toLowerCase() || '';
     if (t.includes('pdf')) return <div className="p-2 bg-red-50 text-red-600 rounded-lg"><FileIcon className="h-5 w-5" /></div>;
@@ -163,7 +175,7 @@ export function PortalContent({
 
   if (visibleTabs.length === 0) {
     return (
-      <div className="mx-auto max-w-[720px] px-4 py-20 text-center">
+      <div className="mx-auto max-w-[900px] px-4 py-20 text-center">
         <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-slate-50 mb-6">
           <Calendar className="h-10 w-10 text-slate-200" />
         </div>
@@ -176,7 +188,7 @@ export function PortalContent({
   }
 
   return (
-    <div className="max-w-[720px] mx-auto space-y-12 px-4 py-20">
+    <div className="max-w-[900px] mx-auto space-y-12 px-4 py-20">
       {/* 1. PROGRESS HERO */}
       <section className="bg-white border border-slate-200 p-6 md:p-10 ambient-shadow">
         <div className="flex justify-between items-start mb-8">
@@ -378,7 +390,7 @@ export function PortalContent({
                       <div className="flex flex-col min-w-0">
                         <span className="font-bold text-[14px] text-[#0F172A] truncate">{file.name}</span>
                         <span className="text-[9px] uppercase text-[#64748B]">
-                          {file.type?.split('/')[1] || 'Archivo'}{showFileSize ? ` • ${formatSize(file.size)}` : ''}
+                          {getFileExtension(file.type, file.name)}{showFileSize ? ` • ${formatSize(file.size)}` : ''}
                         </span>
                       </div>
                     </div>
