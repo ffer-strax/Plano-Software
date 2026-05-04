@@ -1,20 +1,14 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   FileIcon, 
   Download, 
   Clock, 
   CheckCircle2, 
-  PlayCircle,
-  Receipt,
-  AlertCircle,
   Calendar,
-  Layers,
-  FileDown
+  Layers
 } from 'lucide-react';
 import type { ProjectFile, Milestone, Quote, ProjectStatus } from '@/types';
 import jsPDF from 'jspdf';
@@ -70,13 +64,6 @@ export function PortalContent({
     return kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb.toFixed(1)} KB`;
   }
 
-  function getStatusIcon(status: string) {
-    switch (status) {
-      case 'done': return <CheckCircle2 className="h-4 w-4 text-blue-600" />;
-      case 'in_progress': return <PlayCircle className="h-4 w-4 text-blue-500" />;
-      default: return <Clock className="h-4 w-4 text-slate-300" />;
-    }
-  }
 
   function getFileIcon(type?: string) {
     const t = type?.toLowerCase() || '';
