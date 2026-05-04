@@ -58,8 +58,16 @@ export function BillingClient({ currentPlan }: BillingClientProps) {
     }
   ];
 
+  console.log('DEBUG: currentPlan:', currentPlan);
+  console.log('DEBUG: PRO PRICE ID:', process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID);
+  console.log('DEBUG: STUDIO PRICE ID:', process.env.NEXT_PUBLIC_STRIPE_STUDIO_PRICE_ID);
+
   async function handleUpgrade(priceId: string, planName: string) {
-    if (!priceId) return;
+    console.log(`DEBUG: handleUpgrade called for ${planName} with priceId: ${priceId}`);
+    if (!priceId) {
+      console.error('DEBUG: No priceId provided to handleUpgrade');
+      return;
+    }
     
     setLoadingPlan(planName);
     try {
